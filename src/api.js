@@ -27,10 +27,7 @@ export const updateTickersPrice = tickers => {
   fetch(url)
     .then(resolve => resolve.json())
     .then(priceList => {
-      console.log(priceList);
-      tickersHandlers.forEach((fn, coinName) => {
-        fn(priceList[coinName].USD)
-      });
+      tickersHandlers.forEach((fn, coinName) => fn(priceList[coinName].USD));
     })
     .catch(error => error);
 };

@@ -7,12 +7,24 @@
     </div>
     <input
       v-model="tickerToAdd"
-      @keydown.enter="addTicker"
+      @keydown.enter="addTicker(tickerToAdd)"
+      @input="resetErrorMessages"
       placeholder="DOGE..."
     />
+    <div class="error-message">
+      <span v-if="isTickerNameInvalid">Invalid token name.</span>
+      <span v-if="isTickerAlreadyAdded">Token is already added.</span>
+    </div>
+    <div
+      class="input-suggestions"
+      v-for="(suggestedTicker, index) in suggestions"
+      :key=index
+      @click="addTicker(suggestedTicker.name)">
+      {{ suggestedTicker.fullName }}
+    </div>
     <ul>
       <li v-for="(ticker, index) in trackedTickers" :key="index">
-        {{ ticker }}
+        {{ ticker.name }} - USD: {{ ticker.price }}
         <button @click="removeTicker(ticker)">delete</button>
       </li>
     </ul>
@@ -31,17 +43,37 @@ export default {
     return {
       tickerToAdd: "",
       trackedTickers: [],
+      suggestions: [],
       isCoinListLoaded: false,
+      isTickerNameInvalid: false,
+      isTickerAlreadyAdded: false
     };
   },
 
   created() {
-    getCoinList().then((loadedList) => {
-      this.$options.coinList = { ...loadedList };
-      this.isCoinListLoaded = true;
-    });
+    const coinList = JSON.parse(localStorage.getItem('coin-list'));
 
-    const tickerUpdateInterval = 3000;
+    if (coinList) {
+      this.finishPageLoading(coinList)
+    } else {
+      getCoinList().then(loadedList => {
+        this.finishPageLoading(loadedList);
+        
+        localStorage.setItem('coin-list', JSON.stringify(loadedList));
+      });
+    }
+
+    const tickers = localStorage.getItem('tickers');
+
+    if (tickers) {
+      this.trackedTickers = [...JSON.parse(tickers)];
+      this.trackedTickers.forEach(t => {
+        t.price = "-";
+        subscribeTicker(t.name, (newPrice) => this.updatePrice(t.name, newPrice));
+      });
+    }
+
+    const tickerUpdateInterval = 2000;
 
     this.$options.intervalId = setInterval(
       () => updateTickersPrice(this.trackedTickers.map((t) => t.name)),
@@ -53,19 +85,57 @@ export default {
     clearInterval(this.$options.intervalId);
   },
 
+  watch: {
+    trackedTickers() {
+      localStorage.setItem('tickers', JSON.stringify(this.trackedTickers));
+    },
+
+    tickerToAdd() {
+      if (this.tickerToAdd.trim() == "") {
+        this.suggestions = [];
+        return;
+      }
+      
+      const suggestionsAmount = 10;
+      const coinList = this.$options.coinList;
+      this.suggestions = [];
+
+      for (const coin in coinList) {
+        if (coinList[coin].fullName.toUpperCase().includes(this.tickerToAdd.toUpperCase())) {
+          this.suggestions.push( {
+            fullName: coinList[coin].fullName,
+            name: coinList[coin].name
+            });
+          if (this.suggestions.length == suggestionsAmount) return;
+        }
+      } 
+    }
+  },
+
   methods: {
-    addTicker() {
-      const currentTicker = {
-        name: this.tickerToAdd.toUpperCase(),
-        price: "-",
-      };
+    addTicker(ticker) {
+      if (this.tickerToAdd == "") return;
 
-      this.trackedTickers.push(currentTicker);
+      const tickerName = this.getCorrectTickerName(ticker);
+
+      if (!tickerName) {
+        this.isTickerNameInvalid = true;
+      } else {
+        this.checkIfAlreadyAdded(tickerName);
+
+        if (!this.isTickerAlreadyAdded) {
+          const currentTicker = {
+            name: tickerName,
+            price: "-",
+          };
+
+          this.trackedTickers.push(currentTicker);
+
+          subscribeTicker(currentTicker.name, (newPrice) => this.updatePrice(currentTicker.name, newPrice));
+          }
+      }
+
       this.tickerToAdd = "";
-
-      subscribeTicker(currentTicker.name, (newPrice) =>
-        this.updatePrice(currentTicker.name, newPrice)
-      );
     },
 
     removeTicker(tickerToRemove) {
@@ -77,10 +147,47 @@ export default {
     },
 
     updatePrice(tickerName, newPrice) {
-      this.trackedTickers
-        .filter(t => t.name === tickerName)
-        .forEach(t => t.price = newPrice);
+      this.trackedTickers.forEach(t => {
+        if (t.name === tickerName) {
+          t.price = newPrice;
+        }
+      });
+
+      const tickerToUpdate = this.trackedTickers.filter(t => t.name === tickerName).map(t => t[0]);
+      tickerToUpdate.price = newPrice;
     },
+
+    finishPageLoading(loadedData) {
+      this.$options.coinList = {...loadedData};
+      this.isCoinListLoaded = true;   
+    },
+
+    getCorrectTickerName(name) {
+      const coinList = this.$options.coinList;
+
+      for (const coin in coinList) {
+        if (name.toUpperCase() === coinList[coin].coinName.toUpperCase() || name.toUpperCase() === coinList[coin].symbol.toUpperCase()) {
+          return coinList[coin].symbol;
+        }
+      }
+    },
+
+    checkIfAlreadyAdded(tickerName) {
+      let isAdded = false;
+
+      for (const ticker of this.trackedTickers) {
+        if (ticker.name === tickerName) {
+          isAdded = true;
+        }
+      }
+
+      this.isTickerAlreadyAdded = isAdded;
+    },
+
+    resetErrorMessages() {
+      this.isTickerAlreadyAdded = false;
+      this.isTickerNameInvalid = false;
+    }
   },
 };
 </script>
@@ -97,6 +204,14 @@ export default {
   justify-content: center;
   opacity: 80%;
   background: blueviolet;
+}
+
+.error-message {
+  color: red;
+}
+
+.input-suggestions {
+  cursor: pointer;
 }
 
 #app {
