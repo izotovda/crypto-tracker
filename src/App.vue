@@ -1,27 +1,41 @@
 <template>
-  <div id="app">
-    <div v-if="!isCoinListLoaded" class="backdrop"></div>
+  <div class="app">
+    <div v-if="!isCoinListLoaded" class="backdrop">
+      Loading...
+    </div>
+
     <div id="nav">
       <router-link to="/">Home</router-link> |
       <router-link to="/about">About</router-link>
     </div>
-    <input
-      v-model="tickerToAdd"
-      @keydown.enter="addTicker(tickerToAdd)"
-      @input="resetErrorMessages"
-      placeholder="DOGE..."
-    />
-    <div class="error-message">
-      <span v-if="isTickerNameInvalid">Invalid token name.</span>
-      <span v-if="isTickerAlreadyAdded">Token is already added.</span>
+
+    <div class="search-container">
+      <div class="search-input-wrapper">
+        <input
+        class="search-input"
+        v-model="tickerToAdd"
+        @keydown.enter="addTicker(tickerToAdd)"
+        @keydown.escape="tickerToAdd = ''  "
+        @input="resetErrorMessages"
+        placeholder="DOGE..."
+        />
+      </div>
+      <div class="match-list">
+        <div
+          class="match-item"
+          v-for="(match, index) in matchList"
+          :key="index"
+          @click="addTicker(match.name)"
+        >
+          {{ match.fullName }}  
+        </div>
+      </div>
+      <div class="error-message-wrapper">
+        <span v-if="isTickerNameInvalid">Invalid token name</span>
+        <span v-if="isTickerAlreadyAdded">Token is already added</span>
+      </div>
     </div>
-    <div
-      class="input-suggestions"
-      v-for="(suggestedTicker, index) in suggestions"
-      :key=index
-      @click="addTicker(suggestedTicker.name)">
-      {{ suggestedTicker.fullName }}
-    </div>
+
     <ul>
       <li v-for="(ticker, index) in trackedTickers" :key="index">
         {{ ticker.name }} - USD: {{ ticker.price }}
@@ -43,7 +57,7 @@ export default {
     return {
       tickerToAdd: "",
       trackedTickers: [],
-      suggestions: [],
+      matchList: [],
       isCoinListLoaded: false,
       isTickerNameInvalid: false,
       isTickerAlreadyAdded: false
@@ -92,21 +106,21 @@ export default {
 
     tickerToAdd() {
       if (this.tickerToAdd.trim() == "") {
-        this.suggestions = [];
+        this.matchList = [];
         return;
       }
       
-      const suggestionsAmount = 10;
+      const matchListLength = 6;
       const coinList = this.$options.coinList;
-      this.suggestions = [];
+      this.matchList = [];
 
       for (const coin in coinList) {
         if (coinList[coin].fullName.toUpperCase().includes(this.tickerToAdd.toUpperCase())) {
-          this.suggestions.push( {
+          this.matchList.push( {
             fullName: coinList[coin].fullName,
             name: coinList[coin].name
-            });
-          if (this.suggestions.length == suggestionsAmount) return;
+          });
+          if (this.matchList.length == matchListLength) return;
         }
       } 
     }
@@ -114,7 +128,7 @@ export default {
 
   methods: {
     addTicker(ticker) {
-      if (this.tickerToAdd == "") return;
+      if (!this.tickerToAdd) return;
 
       const tickerName = this.getCorrectTickerName(ticker);
 
@@ -193,9 +207,24 @@ export default {
 </script>
 
 <style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+}
+
+.app {
+  height: 500px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  background: rgb(245, 245, 245);
+}
+
 .backdrop {
   position: fixed;
-  inset: 0;
   width: 100%;
   height: 100%;
   z-index: 50;
@@ -203,23 +232,59 @@ export default {
   align-items: center;
   justify-content: center;
   opacity: 80%;
-  background: blueviolet;
+  background: rgb(15, 124, 12);
+  color:honeydew;
 }
 
-.error-message {
-  color: red;
+.search-container {
+  position: relative;
+  height: 64px;
+  max-width: 240px;
+  margin: 0 auto;
+  
 }
 
-.input-suggestions {
+.search-input-wrapper {
+  width: 100%;
+  border-radius: 5px;
+  box-shadow: 0px 1px 2px 1px rgba(0, 0, 0, 0.12);
+}
+
+.search-input {
+  width: 100%;
+  padding: 4px 8px;
+  line-height: 1.6em;
+  border: none;
+  outline: none;
+  font-size: 16px;
+}
+
+.match-list {
+  position: absolute;
+  width: 100%;
+  border-radius: 0 0 5px 5px;
+  box-shadow: 0px 1px 2px 1px rgba(0, 0, 0, 0.12);
+  background: white;
+}
+
+.match-item {
+  padding: 6px 8px;
+  text-align: left;
   cursor: pointer;
+  font-size: 14px;
 }
 
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+.match-item:hover {
+  background: rgb(232, 245, 232);
+}
+
+.error-message-wrapper {
+  line-height: 2em;
+  color: rgb(235, 28, 28);
+}
+
+li {
+  list-style: none;
 }
 
 #nav {
