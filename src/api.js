@@ -10,8 +10,8 @@ export const getCoinList = () => {
     .then(resolve => resolve.json())
     .then(coinList => {
       for (let coin in coinList.Data) {
-        const { CoinName: coinName, Description: description, FullName: fullName, ImageUrl: imageUrl, Name: name, Symbol: symbol } = coinList.Data[coin];
-        coinList.Data[coin] = {...{coinName, description, fullName, imageUrl, name, symbol}};
+        const { CoinName: coinName, Description: description, FullName: fullName, ImageUrl: imageUrl, Name: name } = coinList.Data[coin];
+        coinList.Data[coin] = {...{coinName, description, fullName, imageUrl, name}};
       }
 
       return coinList.Data;

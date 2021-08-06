@@ -14,18 +14,31 @@
         <input
         class="search-input"
         v-model="tickerToAdd"
-        @keydown.enter="addTicker(tickerToAdd)"
+        @keydown.enter="addTicker(searchInputData)"
         @keydown.escape="tickerToAdd = ''  "
         @input="resetErrorMessages"
+        @focus="showMatches"
+        @blur="hideMatches"
+        @keydown.down="selectNextMatch"
+        @keydown.up="selectPreviousMatch"
+        @mouseover="selectedMatch = null"
+        @click="selectedMatch = null"
         placeholder="DOGE..."
+        autofocus
         />
       </div>
-      <div class="match-list">
+      <div 
+        class="match-list"
+        v-if="isSearchFocused"
+        >
         <div
           class="match-item"
+          :class="{'match-item_selected': match === selectedMatch}"
           v-for="(match, index) in matchList"
           :key="index"
-          @click="addTicker(match.name)"
+          @mouseover="selectedMatch = match"
+          @mousedown.prevent
+          @click="addTicker(searchInputData)"
         >
           {{ match.fullName }}  
         </div>
@@ -51,7 +64,8 @@ import { getCoinList, subscribeTicker, unsubscribeTicker, updateTickersPrice } f
 
 export default {
   //custom options
-  coinList: {},
+  coinList: null,
+  MAX_MATCHLIST_LENGTH: 6,
 
   data() {
     return {
@@ -60,8 +74,18 @@ export default {
       matchList: [],
       isCoinListLoaded: false,
       isTickerNameInvalid: false,
-      isTickerAlreadyAdded: false
+      isTickerAlreadyAdded: false,
+      isSearchFocused: false,
+      selectedMatch: null
     };
+  },
+
+  computed: {
+    searchInputData() {
+      return this.selectedMatch === null
+        ? this.tickerToAdd
+        : this.selectedMatch.name;
+    }
   },
 
   created() {
@@ -83,7 +107,7 @@ export default {
       this.trackedTickers = [...JSON.parse(tickers)];
       this.trackedTickers.forEach(t => {
         t.price = "-";
-        subscribeTicker(t.name, (newPrice) => this.updatePrice(t.name, newPrice));
+        subscribeTicker(t.name, (newPrice) => this.updateTickerPrice(t.name, newPrice));
       });
     }
 
@@ -110,17 +134,19 @@ export default {
         return;
       }
       
-      const matchListLength = 6;
+      const maxListLength = this.$options.MAX_MATCHLIST_LENGTH;
       const coinList = this.$options.coinList;
       this.matchList = [];
 
       for (const coin in coinList) {
-        if (coinList[coin].fullName.toUpperCase().includes(this.tickerToAdd.toUpperCase())) {
+          const regexp = new RegExp(`^${this.tickerToAdd}`, "gi");
+
+          if (coinList[coin].fullName.match(regexp) || coinList[coin].name.match(regexp)) {
           this.matchList.push( {
             fullName: coinList[coin].fullName,
             name: coinList[coin].name
           });
-          if (this.matchList.length == matchListLength) return;
+          if (this.matchList.length == maxListLength) return;
         }
       } 
     }
@@ -145,7 +171,7 @@ export default {
 
           this.trackedTickers.push(currentTicker);
 
-          subscribeTicker(currentTicker.name, (newPrice) => this.updatePrice(currentTicker.name, newPrice));
+          subscribeTicker(currentTicker.name, (newPrice) => this.updateTickerPrice(currentTicker.name, newPrice));
           }
       }
 
@@ -160,7 +186,7 @@ export default {
       unsubscribeTicker(tickerToRemove.name);
     },
 
-    updatePrice(tickerName, newPrice) {
+    updateTickerPrice(tickerName, newPrice) {
       this.trackedTickers.forEach(t => {
         if (t.name === tickerName) {
           t.price = newPrice;
@@ -171,17 +197,12 @@ export default {
       tickerToUpdate.price = newPrice;
     },
 
-    finishPageLoading(loadedData) {
-      this.$options.coinList = {...loadedData};
-      this.isCoinListLoaded = true;   
-    },
-
     getCorrectTickerName(name) {
       const coinList = this.$options.coinList;
 
       for (const coin in coinList) {
-        if (name.toUpperCase() === coinList[coin].coinName.toUpperCase() || name.toUpperCase() === coinList[coin].symbol.toUpperCase()) {
-          return coinList[coin].symbol;
+        if (name.toUpperCase() === coinList[coin].coinName.toUpperCase() || name.toUpperCase() === coinList[coin].name.toUpperCase()) {
+          return coinList[coin].name;
         }
       }
     },
@@ -198,13 +219,55 @@ export default {
       this.isTickerAlreadyAdded = isAdded;
     },
 
+    finishPageLoading(loadedData) {
+      this.$options.coinList = {...loadedData};
+      this.isCoinListLoaded = true;   
+    },
+
     resetErrorMessages() {
       this.isTickerAlreadyAdded = false;
       this.isTickerNameInvalid = false;
+    },
+
+    hideMatches() {
+      setTimeout(() => {
+        this.isSearchFocused = false;
+        this.selectedMatch = null;
+      });
+    },
+
+    showMatches() {
+      this.isSearchFocused = true;      
+    },
+
+    selectNextMatch() {
+      const listLength = this.matchList.length;
+      const currentIndex = this.matchList.indexOf(this.selectedMatch);
+
+      if (listLength) {
+        this.selectedMatch = this.selectedMatch === null
+          ? this.matchList[0]
+          : currentIndex >= listLength - 1
+            ? null
+            : this.matchList[currentIndex + 1];
+      }
+    },
+
+    selectPreviousMatch() {
+      const listLength = this.matchList.length;
+      const currentIndex = this.matchList.indexOf(this.selectedMatch);
+
+      if (listLength) {
+        this.selectedMatch = this.selectedMatch === null
+          ? this.matchList[listLength - 1]
+          : currentIndex === 0
+            ? null
+            : this.matchList[currentIndex - 1];
+      }
     }
   },
 };
-</script>
+</script> 
 
 <style>
 * {
@@ -274,7 +337,7 @@ export default {
   font-size: 14px;
 }
 
-.match-item:hover {
+.match-item_selected {
   background: rgb(232, 245, 232);
 }
 
