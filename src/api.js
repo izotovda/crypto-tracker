@@ -10,7 +10,8 @@ export const getCoinList = () => {
     .then(resolve => resolve.json())
     .then(coinList => {
       for (let coin in coinList.Data) {
-        const { CoinName: coinName, Description: description, FullName: fullName, ImageUrl: imageUrl, Name: name } = coinList.Data[coin];
+        const { CoinName: coinName, Description: description, FullName: fullName, Name: name } = coinList.Data[coin];
+        const imageUrl = "https://www.cryptocompare.com" + coinList.Data[coin].ImageUrl
         coinList.Data[coin] = {...{coinName, description, fullName, imageUrl, name}};
       }
 
@@ -27,9 +28,11 @@ export const updateTickersPrice = tickers => {
   fetch(url)
     .then(resolve => resolve.json())
     .then(priceList => {
-      tickersHandlers.forEach((fn, coinName) => fn(priceList[coinName].USD));
+      tickersHandlers.forEach((fn, coinName) => {
+        if (priceList[coinName]) fn(priceList[coinName].USD);
+      });
     })
-    .catch(error => error);
+    .catch(error => console.log(error));
 };
 
 export const subscribeTicker = (ticker, fn) => {

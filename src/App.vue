@@ -49,23 +49,48 @@
       </div>
     </div>
 
-    <ul>
-      <li v-for="(ticker, index) in trackedTickers" :key="index">
-        {{ ticker.name }} - USD: {{ ticker.price }}
-        <button @click="removeTicker(ticker)">delete</button>
+    <ul class="tickers-list">    
+      <li
+        class="tickers-item" 
+        v-for="(ticker, index) in trackedTickers"
+        :key="index"
+      >
+        <img
+          class="tickers-item__token-icon"
+          :src="ticker.imageUrl"
+          alt="token icon"
+        >
+        <div class="tickers-item__name-container">
+          {{ ticker.coinName }} ({{ ticker.name }})
+        </div>
+        <div class="tickers-item__price-container">
+          {{ formatPrice(ticker.price) }}
+        </div>
+        <button
+          class="tickers-item__delete-button"
+          @click="removeTicker(ticker)"
+        >
+          <delete-icon class="delete-icon"/>
+        </button>
       </li>
     </ul>
+    
     <router-view />
   </div>
 </template>
 
 <script>
 import { getCoinList, subscribeTicker, unsubscribeTicker, updateTickersPrice } from "./api.js";
+import DeleteIcon from "./components/DeleteIcon.vue";
 
 export default {
   //custom options
   coinList: null,
   MAX_MATCHLIST_LENGTH: 6,
+
+  components: {
+    DeleteIcon
+  },
 
   data() {
     return {
@@ -85,7 +110,7 @@ export default {
       return this.selectedMatch === null
         ? this.tickerToAdd
         : this.selectedMatch.name;
-    }
+    },
   },
 
   created() {
@@ -128,8 +153,8 @@ export default {
       localStorage.setItem('tickers', JSON.stringify(this.trackedTickers));
     },
 
-    tickerToAdd() {
-      if (this.tickerToAdd.trim() == "") {
+    tickerToAdd() {      
+      if (!this.tickerToAdd.trim().length || /\\/.test(this.tickerToAdd)) {
         this.matchList = [];
         return;
       }
@@ -146,7 +171,7 @@ export default {
             fullName: coinList[coin].fullName,
             name: coinList[coin].name
           });
-          if (this.matchList.length == maxListLength) return;
+          if (this.matchList.length === maxListLength) return;
         }
       } 
     }
@@ -156,22 +181,18 @@ export default {
     addTicker(ticker) {
       if (!this.tickerToAdd) return;
 
-      const tickerName = this.getCorrectTickerName(ticker);
+      const tickerData = this.getTickerData(ticker);
 
-      if (!tickerName) {
+      if (!tickerData) {
         this.isTickerNameInvalid = true;
       } else {
-        this.checkIfAlreadyAdded(tickerName);
+        this.checkIfAlreadyAdded(tickerData.name);
 
         if (!this.isTickerAlreadyAdded) {
-          const currentTicker = {
-            name: tickerName,
-            price: "-",
-          };
 
-          this.trackedTickers.push(currentTicker);
+          this.trackedTickers.push(tickerData);
 
-          subscribeTicker(currentTicker.name, (newPrice) => this.updateTickerPrice(currentTicker.name, newPrice));
+          subscribeTicker(tickerData.name, (newPrice) => this.updateTickerPrice(tickerData.name, newPrice));
           }
       }
 
@@ -186,6 +207,14 @@ export default {
       unsubscribeTicker(tickerToRemove.name);
     },
 
+    formatPrice(price) {
+      const formatedPrice = price === "-"
+        ? price
+        : "$ " + price;
+      
+      return formatedPrice;
+    },
+
     updateTickerPrice(tickerName, newPrice) {
       this.trackedTickers.forEach(t => {
         if (t.name === tickerName) {
@@ -197,12 +226,17 @@ export default {
       tickerToUpdate.price = newPrice;
     },
 
-    getCorrectTickerName(name) {
+    getTickerData(name) {
       const coinList = this.$options.coinList;
 
       for (const coin in coinList) {
         if (name.toUpperCase() === coinList[coin].coinName.toUpperCase() || name.toUpperCase() === coinList[coin].name.toUpperCase()) {
-          return coinList[coin].name;
+          return {
+            name: coinList[coin].name,
+            coinName: coinList[coin].coinName,
+            price: "-",
+            imageUrl: coinList[coin].imageUrl
+          };
         }
       }
     },
@@ -277,8 +311,12 @@ export default {
   font-family: Avenir, Helvetica, Arial, sans-serif;
 }
 
+html, body {
+    height:100%; /*both html and body*/
+}
+
 .app {
-  height: 500px;
+  min-height: 100%;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
@@ -309,7 +347,6 @@ export default {
 
 .search-input-wrapper {
   width: 100%;
-  border-radius: 5px;
   box-shadow: 0px 1px 2px 1px rgba(0, 0, 0, 0.12);
 }
 
@@ -324,6 +361,7 @@ export default {
 
 .match-list {
   position: absolute;
+  z-index: 1;
   width: 100%;
   border-radius: 0 0 5px 5px;
   box-shadow: 0px 1px 2px 1px rgba(0, 0, 0, 0.12);
@@ -346,8 +384,53 @@ export default {
   color: rgb(235, 28, 28);
 }
 
-li {
+.tickers-list {
+  margin: 1.25em auto 0 auto;
+  width: 25em;
+  background-color: white;
+}
+
+.tickers-item {
+  position: relative;
+  margin: 10px 0;
+  display: grid;
+  grid-template-columns: 5.5em 1fr 3em;
+  grid-template-rows: 2.5em 2.5em;
   list-style: none;
+  font-size: 18px;
+  border-radius: 5px;
+  box-shadow: 0px 1px 2px 1px rgba(0, 0, 0, 0.12);
+}
+
+.tickers-item__token-icon {
+  grid-area: 1 / 1 / 2 / 1;  /*row-start / column-start / row-end / column-end*/
+  height: 5em;
+}
+
+.tickers-item__name-container {
+  line-height: 2.5em;
+  grid-area: 1 / 2 / 1 / 2;
+  border-bottom: 1px solid;
+}
+
+.tickers-item__price-container {
+  grid-area: 2 / 2 / 2 / 2;
+  line-height: 2.5em;
+}
+
+.tickers-item__delete-button {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 2.5em;
+  height: 2.5em;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.delete-icon {
+  height: 2.5em;
 }
 
 #nav {
