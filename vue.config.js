@@ -1,5 +1,5 @@
-// module.exports = () => {
-//   return {
-//       publicPath: './'
-//   }
-// };
+module.exports = () => {
+  return {
+    publicPath: './'
+  }
+};
