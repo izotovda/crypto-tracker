@@ -1,9 +1,5 @@
 <template>
   <div class="container">
-    <div v-if="!isCoinListLoaded" class="backdrop">
-      Loading...
-    </div>
-
     <div class="search-container">
       <div class="search-input-wrapper">
         <input
@@ -68,7 +64,7 @@
           <delete-icon class="delete-icon"/>
         </button>
         <div class="ticker-item__info-button">
-          <router-link :to="{name: 'Coins', params: {coin: ticker.name}}">Info</router-link>
+          <router-link :to="{name: 'Coins', params: {coin: ticker.name, coinList: coinList}}">Info</router-link>
         </div>    
       </li>
     </ul>
@@ -76,16 +72,21 @@
 </template>
 
 <script>
-import { getCoinList, subscribeTicker, unsubscribeTicker, updateTickersPrice } from "../api.js";
+import { subscribeTicker, unsubscribeTicker, updateTickersPrice } from "../api.js";
 import DeleteIcon from "../components/DeleteIcon.vue";
 
 export default {
   //custom options
-  coinList: null,
   MAX_MATCHLIST_LENGTH: 6,
 
   components: {
     DeleteIcon
+  },
+
+  props: {
+    coinList: {
+      default: null,
+    },
   },
 
   data() {
@@ -93,7 +94,6 @@ export default {
       tickerToAdd: "",
       trackedTickers: [],
       matchList: [],
-      isCoinListLoaded: false,
       isTickerNameInvalid: false,
       isTickerAlreadyAdded: false,
       isSearchFocused: false,
@@ -110,18 +110,6 @@ export default {
   },
 
   created() {
-    const coinList = JSON.parse(localStorage.getItem('coin-list'));
-
-    if (coinList) {
-      this.finishPageLoading(coinList)
-    } else {
-      getCoinList().then(loadedList => {
-        this.finishPageLoading(loadedList);
-        
-        localStorage.setItem('coin-list', JSON.stringify(loadedList));
-      });
-    }
-
     const tickers = localStorage.getItem('tickers');
 
     if (tickers) {
@@ -156,7 +144,7 @@ export default {
       }
       
       const maxListLength = this.$options.MAX_MATCHLIST_LENGTH;
-      const coinList = this.$options.coinList;
+      const coinList = this.coinList;
       this.matchList = [];
 
       for (const coin in coinList) {
@@ -196,9 +184,7 @@ export default {
     },
 
     removeTicker(tickerToRemove) {
-      this.trackedTickers = this.trackedTickers.filter(
-        t => t != tickerToRemove
-      );
+      this.trackedTickers = this.trackedTickers.filter(t => t != tickerToRemove);
 
       unsubscribeTicker(tickerToRemove.name);
     },
@@ -223,7 +209,7 @@ export default {
     },
 
     getTickerData(name) {
-      const coinList = this.$options.coinList;
+      const coinList = this.coinList;
 
       for (const coin in coinList) {
         if (name.toUpperCase() === coinList[coin].coinName.toUpperCase() || name.toUpperCase() === coinList[coin].name.toUpperCase()) {
@@ -247,11 +233,6 @@ export default {
       }
 
       this.isTickerAlreadyAdded = isAdded;
-    },
-
-    finishPageLoading(loadedData) {
-      this.$options.coinList = {...loadedData};
-      this.isCoinListLoaded = true;   
     },
 
     resetErrorMessages() {
@@ -299,27 +280,7 @@ export default {
 };
 </script> 
 
-<style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-}
-
-.backdrop {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  z-index: 50;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 80%;
-  background: rgb(15, 124, 12);
-  color:honeydew;
-}
-
+<style scoped>
 .search-container {
   position: relative;
   height: 64px;

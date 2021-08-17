@@ -13,18 +13,17 @@ export default {
     coin: {
       type: String,
       required: true
-    }
+    },
+
+    coinList: {
+      default: null,
+    },
   },
 
-  data() {
-    return {
-      coinData: null
+  computed: {
+    coinData() {
+      return this.coinList?.[this.coin] || {}
     }
-  },
-
-  created() {
-    const coinList = JSON.parse(localStorage.getItem('coin-list'));
-    this.coinData = coinList[this.coin.toUpperCase()];
   }
 }
 </script>

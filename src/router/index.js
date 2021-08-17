@@ -30,6 +30,7 @@ const routes = [
 ]
 
 const router = new VueRouter({
+  // disabled since history mode doenst work properly with github pages and production build.
   // mode: 'history',
   base: process.env.BASE_URL,
   routes
