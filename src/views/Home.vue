@@ -157,7 +157,7 @@ export default {
           });
           if (this.matchList.length === maxListLength) return;
         }
-      } 
+      }
     }
   },
 
