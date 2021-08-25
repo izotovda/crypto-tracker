@@ -11,8 +11,9 @@
     </div>
     <div v-if="activeWindow === 'hourlyChart'">
       <div>
+        <p v-if="isDataNotFound">Data not found</p>
         <line-chart
-          v-if="isLoaded"
+          v-if="isLoaded && !isDataNotFound"
           label="24-hour chart"
           :chartData="chartData"
         />
@@ -42,7 +43,7 @@ export default {
     return {
       activeWindow: "description",
       hourlyData: [],
-      isLoaded:false
+      isLoaded: false,
     }
   },
 
@@ -52,17 +53,25 @@ export default {
     },
 
     chartData() {
-      return this.hourlyData.map(priceData => {
-        const timestamp = priceData.time * 1000; //converting unix timestamp into ms
-        const time = new Date(timestamp); //open time for each period
+      if (this.hourlyData) {
+        return this.hourlyData.map(priceData => {
+          const timestamp = priceData.time * 1000; //converting unix timestamp into ms
+          const time = new Date(timestamp); //open time for each period
 
-        let formatedTime = time.getHours() + ":00"; //to string "HH:MM"
+          let formatedTime = time.getHours() + ":00"; //to string "HH:MM"
 
-        return {
-          xData: formatedTime,
-          yData: priceData.open
-        };
-      });
+          return {
+            xData: formatedTime,
+            yData: priceData.open
+          };
+        });
+      } else {
+        return [{xData: 0, yData: 0}];
+      }
+    },
+
+    isDataNotFound() {
+      return this.hourlyData ? false : true;
     }
   },
 

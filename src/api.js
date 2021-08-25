@@ -21,14 +21,18 @@ export const getCoinList = () => {
 };
 
 export const getHourlyPairData = async (coinName) => {
-  const url = new URL('https://min-api.cryptocompare.com/data/v2/histohour?tsym=USD&limit=24');
-  url.searchParams.set('fsym', coinName);
-  
-  const resolve = await fetch(url);
-  const rowData = await resolve.json();
-  const hourlyData = Object.entries(rowData.Data.Data).map(item => item[1]);
-  
-  return hourlyData;
+  try {
+    const url = new URL('https://min-api.cryptocompare.com/data/v2/histohour?tsym=USD&limit=24');
+    url.searchParams.set('fsym', coinName);
+    
+    const resolve = await fetch(url);
+    const rowData = await resolve.json();
+    const hourlyData = Object.entries(rowData.Data.Data).map(item => item[1]) ?? [];
+    return hourlyData;
+
+  } catch(error) {
+    console.log(error);
+  }
 };
 
 export const updateTickersPrice = tickers => {

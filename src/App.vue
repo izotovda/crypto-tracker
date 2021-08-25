@@ -15,8 +15,6 @@
 import { getCoinList } from "./api.js";
 
 export default ({
-  //custom options
-  
   data() {
     return {
       isCoinListLoaded: false,

@@ -21,6 +21,7 @@
       <div 
         class="match-list"
         v-if="isSearchFocused"
+        ref="matchList"
         >
         <div
           class="match-item"
@@ -76,9 +77,6 @@ import { subscribeTicker, unsubscribeTicker, updateTickersPrice } from "../api.j
 import DeleteIcon from "../components/DeleteIcon.vue";
 
 export default {
-  //custom options
-  MAX_MATCHLIST_LENGTH: 6,
-
   components: {
     DeleteIcon
   },
@@ -143,7 +141,6 @@ export default {
         return;
       }
       
-      const maxListLength = this.$options.MAX_MATCHLIST_LENGTH;
       const coinList = this.coinList;
       this.matchList = [];
 
@@ -155,7 +152,6 @@ export default {
             fullName: coinList[coin].fullName,
             name: coinList[coin].name
           });
-          if (this.matchList.length === maxListLength) return;
         }
       }
     }
@@ -261,6 +257,10 @@ export default {
           : currentIndex >= listLength - 1
             ? null
             : this.matchList[currentIndex + 1];
+
+        if (this.selectedMatch !== null) {
+          this.$nextTick(() => this.handleMatchListScrolling());        
+        }
       }
     },
 
@@ -274,7 +274,32 @@ export default {
           : currentIndex === 0
             ? null
             : this.matchList[currentIndex - 1];
+
+        if (this.selectedMatch !== null) {
+          this.$nextTick(() => this.handleMatchListScrolling());        
+        }
       }
+    },
+
+    handleMatchListScrolling() {
+      this.$nextTick(() => {
+        if (this.selectedMatch !== null) {
+          const matchList = this.$refs.matchList;
+          const selectedItem = this.$refs.matchList.querySelector('.match-item_selected');
+
+          const itemCoords = selectedItem.getBoundingClientRect();
+          const listCoords = matchList.getBoundingClientRect();
+
+          if (itemCoords.bottom > listCoords.bottom) {
+            selectedItem.scrollIntoView(false);
+          } else if (itemCoords.top < listCoords.top) {
+            selectedItem.scrollIntoView(true);
+          }
+        }
+    });
+      
+
+      
     }
   },
 };
@@ -307,6 +332,8 @@ export default {
   position: absolute;
   z-index: 1;
   width: 100%;
+  max-height: 200px;
+  overflow: auto;
   border-radius: 0 0 5px 5px;
   box-shadow: 0px 1px 2px 1px rgba(0, 0, 0, 0.12);
   background: white;
