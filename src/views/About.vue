@@ -1,5 +1,5 @@
 <template>
   <div class="about">
-    <h1>:)</h1>
+    <p>Source of data: <a href="https://www.cryptocompare.com/">cryptocompare.com</a></p>
   </div>
 </template>

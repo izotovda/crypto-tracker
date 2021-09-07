@@ -65,7 +65,7 @@
           <delete-icon class="delete-icon"/>
         </button>
         <div class="ticker-item__info-button">
-          <router-link :to="{name: 'Coins', params: {coin: ticker.name, coinList: coinList}}">Info</router-link>
+          <router-link :to="{name: 'Coins', params: {coin: ticker.name, coinList: coinList}}" class="info-link">Info</router-link>
         </div>    
       </li>
     </ul>
@@ -258,9 +258,7 @@ export default {
             ? null
             : this.matchList[currentIndex + 1];
 
-        if (this.selectedMatch !== null) {
-          this.$nextTick(() => this.handleMatchListScrolling());        
-        }
+        this.handleMatchListScrolling();
       }
     },
 
@@ -275,9 +273,7 @@ export default {
             ? null
             : this.matchList[currentIndex - 1];
 
-        if (this.selectedMatch !== null) {
-          this.$nextTick(() => this.handleMatchListScrolling());        
-        }
+        this.handleMatchListScrolling()
       }
     },
 
@@ -296,10 +292,7 @@ export default {
             selectedItem.scrollIntoView(true);
           }
         }
-    });
-      
-
-      
+      });  
     }
   },
 };
@@ -409,5 +402,19 @@ export default {
   width: 3em;
   grid-area: 2 / 3 / 2 / 3;
   line-height: 2.5em;
+}
+
+.info-link {
+  text-decoration: none;
+  color: #2c3e50;
+  transition: all 150ms linear;
+}
+
+.info-link:visited {
+  color: #2c3e50;
+}
+
+.info-link:hover {
+  color: #57c47b;
 }
 </style>

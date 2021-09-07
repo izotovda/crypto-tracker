@@ -16,23 +16,34 @@ export default {
     options: {
       type: Object,
       default: function () {
-        return {responsive: true, maintainAspectRatio: false}
+        return {
+          layout: {
+            padding: 5,
+          },
+          legend: {
+            display: false  
+          },  
+          responsive: true,
+          maintainAspectRatio: false}
       },
     }
   },
 
   mounted() {
-    const xData = this.chartData.map(item => item.xData);
-    const yData = this.chartData.map(item => item.yData);
+    const xData = this.chartData.map(point => point.x);
+    const yData = this.chartData.map(point => point.y);
 
     this.renderChart({
       labels: xData,
-      
+
       datasets: [{
         label: this.label,
-        data: yData
-      }]
-    },this.options);
+        data: yData,
+        borderColor: "#49A078",
+        backgroundColor: "rgba(73, 160, 120, 0.2)",
+        borderWidth: 1.5
+      }],
+    }, this.options);
   }
 }
 </script>

@@ -2,22 +2,36 @@
   <div class="wrapper">
     <img :src="coinData.imageUrl" alt="Token icon">
     <h1>{{ coinData.fullName }}</h1>
-    <button @click="switchToDescription">Description</button>
-    <button @click="switchToHourlyChart">Hourly Data</button>
-    <div
-      class="coin-description"
-      v-if="activeWindow === 'description'"
-    >{{ coinData.description }}
-    </div>
-    <div v-if="activeWindow === 'hourlyChart'">
+    <a
+      class="coin-info__button"
+      :class="{'coin-info__button_active': activeWindow === 'description'}"
+      @click="switchToDescription"
+      @keydown.enter="switchToDescription"
+      tabindex="0"
+      >Description
+    </a> |
+    <a
+      class="coin-info__button"
+      :class="{'coin-info__button_active': activeWindow === 'hourlyChart'}"
+      @click="switchToHourlyChart"
+      @keydown.enter="switchToHourlyChart"
+      tabindex="0"
+      >Hourly Data
+    </a>
+    <div class="coin-info__container">
+    <template v-if="activeWindow === 'description'">
+      <p class="coin-info__content">{{ coinData.description }}</p>
+    </template>
+    <template v-if="activeWindow === 'hourlyChart'">
       <div>
         <p v-if="isDataNotFound">Data not found</p>
         <line-chart
           v-if="isLoaded && !isDataNotFound"
-          label="24-hour chart"
+          label="Price, $"
           :chartData="chartData"
         />
       </div>
+    </template>
     </div>
   </div>
 </template>
@@ -55,18 +69,18 @@ export default {
     chartData() {
       if (this.hourlyData) {
         return this.hourlyData.map(priceData => {
-          const timestamp = priceData.time * 1000; //converting unix timestamp into ms
+          const timestamp = priceData.time * 1000; //converting unix timestamp to ms
           const time = new Date(timestamp); //open time for each period
 
           let formatedTime = time.getHours() + ":00"; //to string "HH:MM"
 
           return {
-            xData: formatedTime,
-            yData: priceData.open
+            x: formatedTime,
+            y: priceData.open
           };
         });
       } else {
-        return [{xData: 0, yData: 0}];
+        return [{x: 0, y: 0}];
       }
     },
 
@@ -99,8 +113,35 @@ export default {
   max-width: 1000px;
 }
 
-.coin-description {
+.coin-info__container {
+  margin-top: 10px;
+}
+
+.coin-info__header {
+ margin-bottom: 5px;
+}
+
+.coin-info__content {
   padding: 0 20px;
   text-align: justify;
 }
-</style>  
+
+.coin-info__button {
+  margin: 0 5px;
+  cursor: pointer;
+  line-height: 45px;
+  max-width: 160px; 
+  text-transform: uppercase;
+  font-weight: 800;
+  letter-spacing: 1px;
+  transition: all 200ms linear;
+}
+
+.coin-info__button:hover {
+  color: #42b983; 
+}
+
+.coin-info__button_active {
+  border-bottom: 1px solid;
+}
+</style>
