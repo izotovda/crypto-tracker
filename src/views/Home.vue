@@ -3,26 +3,26 @@
     <div class="search-container">
       <div class="search-input-wrapper">
         <input
-        class="search-input"
-        v-model="tickerToAdd"
-        @keydown.enter="addTicker(searchInputData)"
-        @keydown.escape="tickerToAdd = ''  "
-        @input="resetErrorMessages"
-        @focus="showMatches"
-        @blur="hideMatches"
-        @keydown.down="selectNextMatch"
-        @keydown.up="selectPreviousMatch"
-        @mouseover="selectedMatch = null"
-        @click="selectedMatch = null"
-        placeholder="DOGE..."
-        autofocus
+          class="search-input"
+          v-model="tickerToAdd"
+          @keydown.enter="addTicker(searchInputData)"
+          @keydown.escape="tickerToAdd = ''  "
+          @input="resetErrorMessages"
+          @focus="showMatches"
+          @blur="hideMatches"
+          @keydown.down="selectNextMatch"
+          @keydown.up="selectPreviousMatch"
+          @mouseover="selectedMatch = null"
+          @click="selectedMatch = null"
+          placeholder="DOGE..."
+          autofocus
         />
       </div>
       <div 
         class="match-list"
         v-if="isSearchFocused"
         ref="matchList"
-        >
+      >
         <div
           class="match-item"
           :class="{'match-item_selected': match === selectedMatch}"
@@ -40,45 +40,30 @@
         <span v-if="isTickerAlreadyAdded">Token is already added</span>
       </div>
     </div>
-
-    <ul class="tickers-list">    
+    <ul class="tickers__list">    
       <li
-        class="tickers-item" 
+        class="tickers__item"
         v-for="(ticker, index) in trackedTickers"
         :key="index"
       >
-        <img
-          class="tickers-item__token-icon"
-          :src="ticker.imageUrl"
-          alt="token icon"
-        >
-        <div class="tickers-item__name-container">
-          {{ ticker.coinName }} ({{ ticker.name }})
-        </div>
-        <div class="tickers-item__price-container">
-          {{ formatPrice(ticker.price) }}
-        </div>
-        <button
-          class="tickers-item__delete-button"
-          @click="removeTicker(ticker)"
-        >
-          <delete-icon class="delete-icon"/>
-        </button>
-        <div class="ticker-item__info-button">
-          <router-link :to="{name: 'Coins', params: {coin: ticker.name, coinList: coinList}}" class="info-link">Info</router-link>
-        </div>    
+        <currency-ticker
+          :ticker="ticker"
+          :listPosition="index + 1"
+          @remove-request="removeTicker(ticker)"
+          @info-request="openCoinPage($event, ticker.name)"
+        />
       </li>
-    </ul>
+    </ul>  
   </div>
 </template>
 
 <script>
 import { subscribeTicker, unsubscribeTicker, updateTickersPrice } from "../api.js";
-import DeleteIcon from "../components/DeleteIcon.vue";
+import CurrencyTicker from "../components/CurrencyTicker.vue";
 
 export default {
   components: {
-    DeleteIcon
+    CurrencyTicker
   },
 
   props: {
@@ -185,14 +170,6 @@ export default {
       unsubscribeTicker(tickerToRemove.name);
     },
 
-    formatPrice(price) {
-      const formatedPrice = price === "-"
-        ? price
-        : "$ " + price;
-      
-      return formatedPrice;
-    },
-
     updateTickerPrice(tickerName, newPrice) {
       this.trackedTickers.forEach(t => {
         if (t.name === tickerName) {
@@ -293,18 +270,28 @@ export default {
           }
         }
       });  
+    },
+
+    openCoinPage(event, coinName) {
+      const routerProperties = {name: 'Coins', params: {coin: coinName, coinList: this.coinList}};
+
+      if (event.which === 1) this.$router.push(routerProperties);
+
+      if (event.which === 2) {
+        const newRoute = this.$router.resolve(routerProperties);
+        window.open(newRoute.href);
+      }
     }
   },
 };
 </script> 
 
-<style scoped>
+<style lang="scss" scoped>
 .search-container {
   position: relative;
   height: 64px;
   max-width: 240px;
   margin: 0 auto;
-  
 }
 
 .search-input-wrapper {
@@ -348,73 +335,13 @@ export default {
   color: rgb(235, 28, 28);
 }
 
-.tickers-list {
-  margin: 1.25em auto 0 auto;
-  width: 25em;
-  background-color: white;
-}
-
-.tickers-item {
-  position: relative;
-  margin: 10px 0;
-  display: grid;
-  grid-template-columns: 5.5em 1fr 3em;
-  grid-template-rows: 2.5em 2.5em;
+.tickers__list {
+  margin: 1.25em auto;
+  width: min-content;
   list-style: none;
-  font-size: 18px;
-  border-radius: 5px;
-  box-shadow: 0px 1px 2px 1px rgba(0, 0, 0, 0.12);
-}
 
-.tickers-item__token-icon {
-  grid-area: 1 / 1 / 2 / 1;  /*row-start / column-start / row-end / column-end*/
-  height: 5em;
-}
-
-.tickers-item__name-container {
-  line-height: 2.5em;
-  grid-area: 1 / 2 / 1 / 2;
-  border-bottom: 1px solid;
-}
-
-.tickers-item__price-container {
-  grid-area: 2 / 2 / 2 / 2;
-  line-height: 2.5em;
-}
-
-.tickers-item__delete-button {
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  width: 2.5em;
-  height: 2.5em;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-}
-
-.delete-icon {
-  height: 2.5em;
-}
-
-.ticker-item__info-button {
-  position: absolute;
-  width: 3em;
-  grid-area: 2 / 3 / 2 / 3;
-  line-height: 2.5em;
-}
-
-.info-link {
-  text-decoration: none;
-  color: #2c3e50;
-  transition: all 150ms linear;
-}
-
-.info-link:visited {
-  color: #2c3e50;
-}
-
-.info-link:hover {
-  color: #57c47b;
+  .tickers__item:not(:last-child) {
+    margin-bottom: 5px;  
+  }
 }
 </style>
