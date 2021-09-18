@@ -1,10 +1,10 @@
 <template>
-  <div class="ticker">
+  <div class="ticker__container">
     <div class="ticker__number">
-      {{ listPosition }}
+      {{ positionInList }}
     </div>
     <div
-      class="ticker__general-info"
+      class="ticker__coin-info"
       @click="handleCoinClick"
       @click.middle="handleCoinClick"
       @click.right="handleCoinClick"
@@ -46,7 +46,7 @@ export default {
       default: true
     },
     
-    listPosition: {
+    positionInList: {
       type: Number
     },
 
@@ -77,24 +77,25 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.ticker {
+$ticker-height: 4em;
+
+.ticker__container {
+  height: $ticker-height;
   display: grid;
   grid-template-columns: 2em min-content 8em min-content;
-  height: 4em;
-  width: min-content;
   border-radius: 5px;
   box-shadow: 0px 1px 2px 1px rgba(0, 0, 0, 0.12);
   background-color: #fff;
-  font-size: 18px;
+  font-size: 16px;
 
   .ticker__number {
     align-self: center;
     color: rgb(131, 131, 131);
   }
 
-  .ticker__general-info {
+  .ticker__coin-info {
     display: grid;
-    grid-template-columns: 4em 7em;
+    grid-template-columns: $ticker-height 7em;
     grid-template-rows: 2em, 2em;
     column-gap: 0.1em;
     border-left: solid rgb(179, 179, 179);
@@ -104,15 +105,19 @@ export default {
     .ticker__image {
       padding: 2px;
       grid-row: span 2;
-      max-height: 4em;
-      max-height: 4em;
+      max-height: $ticker-height;
+      max-width: $ticker-height;
     }
 
     .ticker__full-name {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      overflow: hidden;
+      text-overflow: ellipsis;
       align-self: end;
       text-align: left;
       font-weight: bold;
-      overflow: hidden;
     }
 
     .ticker__short-name {
