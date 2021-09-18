@@ -5,7 +5,7 @@
       <autocomplete-search
         class="searh__autocomplete"
         :suggestions="suggestions"
-        @submit="addTicker"
+        @submit="handleSubmit"
         @input="updateTickerToAdd"
         placeholder="Enter coin name"
         :autofocus="true"
@@ -51,7 +51,7 @@ export default {
 
   data() {
     return {
-      newTicker: "",
+      tickerToAdd: "",
       suggestions: [],
       trackedTickers: [],
       isTickerNameInvalid: false,
@@ -87,11 +87,11 @@ export default {
       localStorage.setItem('tickers', JSON.stringify(this.trackedTickers));
     },
 
-    newTicker() {
+    tickerToAdd() {
       this.resetErrorMessages();
 
       // return if input value is empty or contains only spaces
-      if (!this.newTicker.trim().length || /\\/.test(this.newTicker)) { 
+      if (!this.tickerToAdd.trim().length || /\\/.test(this.tickerToAdd)) { 
         return;
       }
       
@@ -99,7 +99,7 @@ export default {
       this.suggestions = [];
 
       for (const coin in coinList) {
-          const regexp = new RegExp(`^${this.newTicker}`, "gi"); // Переделать работу со скобками! 
+          const regexp = new RegExp(`^${this.tickerToAdd}`, "gi"); // Переделать работу со скобками! 
 
           // add a suggestion if full name or short name starts with input data
           if (coinList[coin].fullName.match(regexp) || coinList[coin].name.match(regexp)) {
@@ -110,8 +110,13 @@ export default {
   },
 
   methods: {
-    updateTickerToAdd(ticker) { //re-do with v-model later
-      this.newTicker = ticker;
+    updateTickerToAdd(ticker) { // re-do with v-model later
+      this.tickerToAdd = ticker;
+    },
+
+    handleSubmit(ticker) { // re-do with v-model later
+      this.addTicker(ticker),
+      this.tickerToAdd = "";
     },
 
     addTicker(ticker) {

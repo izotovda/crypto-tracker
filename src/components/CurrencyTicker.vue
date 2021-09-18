@@ -78,6 +78,8 @@ export default {
 
 <style lang="scss" scoped>
 $ticker-height: 4em;
+$ticker-height-390: 3.5em;
+$mediaMinWidth: 390px;
 
 .ticker__container {
   height: $ticker-height;
@@ -87,6 +89,11 @@ $ticker-height: 4em;
   box-shadow: 0px 1px 2px 1px rgba(0, 0, 0, 0.12);
   background-color: #fff;
   font-size: 16px;
+
+  @media(max-width:$mediaMinWidth) {
+    grid-template-columns: 1.5em min-content 7em min-content;
+    height: $ticker-height-390;
+  }
 
   .ticker__number {
     align-self: center;
@@ -102,11 +109,21 @@ $ticker-height: 4em;
     align-self: center;
     cursor: pointer;
 
+    @media(max-width:$mediaMinWidth) {
+      grid-template-columns: $ticker-height-390 4.5em;
+      grid-template-rows: $ticker-height-390;
+    }
+
     .ticker__image {
       padding: 2px;
       grid-row: span 2;
       max-height: $ticker-height;
       max-width: $ticker-height;
+
+      @media(max-width:$mediaMinWidth) {
+        max-height: $ticker-height-390;
+        max-width: $ticker-height-390;
+      }
     }
 
     .ticker__full-name {
@@ -118,12 +135,22 @@ $ticker-height: 4em;
       align-self: end;
       text-align: left;
       font-weight: bold;
+
+      @media(max-width:$mediaMinWidth) {
+        display: none;
+      }
     }
 
     .ticker__short-name {
       align-self: start;
       text-align: left;
       color: rgb(131, 131, 131);
+
+      @media(max-width:$mediaMinWidth) {
+        align-self: center;
+        color: #2c3e50;
+        font-weight: bold;
+      }
     }
   }
 
@@ -145,6 +172,10 @@ $ticker-height: 4em;
     padding: 1px;
     width: 2.5em;
     text-align: right;
+
+    @media(max-width:$mediaMinWidth) {
+      align-self: center;
+    }
 
     .ticker__remove-button {
       width: 32px;
