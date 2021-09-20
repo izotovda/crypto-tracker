@@ -1,7 +1,7 @@
 <template>
-  <div class="autocomplete-search__container">
+  <div class="autocomplete">
     <input
-      class="autocomplete-search__input"
+      class="autocomplete__input"
       v-model="inputValue"
       @focus="showSuggestions"
       @blur="hideSuggestions"
@@ -16,13 +16,13 @@
       :placeholder="placeholder"
     /> 
     <div 
-      class="autocomplete-search__suggestions-list"
+      class="autocomplete__suggestions-list"
       v-if="isSuggestionListShown"
       ref="suggestionsList"
     >
       <div
-        class="autocomplete-search__suggestion"
-        :class="{'autocomplete-search__suggestion_selected': suggestion === selectedSuggestion}"
+        class="autocomplete__suggestion"
+        :class="{'autocomplete__suggestion_selected': suggestion === selectedSuggestion}"
         v-for="(suggestion, index) in suggestionsList"
         :key="index"
         @mouseover="selectedSuggestion = suggestion"
@@ -111,7 +111,7 @@ export default {
       this.$nextTick(() => {
         if (this.selectedSuggestion !== null) {
           const suggestionsList = this.$refs.suggestionsList;
-          const selectedItem = suggestionsList.querySelector('.autocomplete-search__suggestion_selected');
+          const selectedItem = suggestionsList.querySelector('.autocomplete__suggestion_selected');
 
           const itemCoords = selectedItem.getBoundingClientRect();
           const listCoords = suggestionsList.getBoundingClientRect();
@@ -156,42 +156,44 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.autocomplete-search__container {
-  width: 240px;
-  background-color: white;
-  font-size: 16px;
+$height: 30px;
 
-  .autocomplete-search__input {
+.autocomplete {
+  width: 240px;
+  height: $height;
+  background-color: white;
+
+  &__input {
     position: relative;
-    padding: 4px 8px;
-    width: inherit;
-    line-height: 1.6em;
+    padding: 0 8px;
+    width: 100%;
+    height: $height;
+    line-height: $height;
     border: none;
     outline: none;
     box-shadow: 0px 1px 2px 1px rgba(0, 0, 0, 0.12);
-    font-size: inherit;
+    font-size: 16px;
     background-color: inherit;
   }
 
-  .autocomplete-search__suggestions-list {
-    position: absolute;
-    z-index: 1;
-    width: inherit;
+  &__suggestions-list {
+    position: absolute; // added to have priority in stacking, if needed add z-index
+    width: inherit; // "inherit" over "100%" since "%" doesnt work properly with "position: absolute"
     max-height: 200px;
     overflow: auto;
     border-radius: 0 0 5px 5px;
     box-shadow: 0px 1px 2px 1px rgba(0, 0, 0, 0.12);
     background-color: inherit;
+  }
 
-    .autocomplete-search__suggestion {
-      padding: 6px 8px;
-      text-align: left;
-      cursor: pointer;
-      font-size: 14px;
+  &__suggestion {
+    padding: 6px 8px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 14px;
 
-      &_selected {
-        background: rgb(232, 245, 232);
-      }
+    &_selected {
+      background: rgb(232, 245, 232);
     }
   }
 }

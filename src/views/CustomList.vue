@@ -1,6 +1,8 @@
 <template>
-  <div>
-    <div class="search__container">
+  <div class="container">
+    <h1>Custom coin list</h1>
+    <p>Enter coin name below to start tracking it. You can see additional information by clicking on coin name or logo.</p>
+    <div class="search">
       <!-- re-do with v-model later -->
       <autocomplete-search
         class="searh__autocomplete"
@@ -15,9 +17,9 @@
         <span v-if="isTickerAlreadyAdded">Token is already added</span>
       </div>
     </div>
-    <ul class="tickers__list">    
+    <ul class="tickers-list">    
       <li
-        class="tickers__item"
+        class="tickers-list__item"
         v-for="(ticker, index) in trackedTickers"
         :key="index"
       >
@@ -204,27 +206,32 @@ export default {
 </script> 
 
 <style lang="scss" scoped>
-.search__container {
+.container {
+  margin-top: 16px;
+  // border: solid 1px black;
+}
+
+.search {
   height: 64px;
   width: 240px;
   margin: 0 auto;
 
-  .searh__autocomplete {
+  &__autocomplete {
     margin: 0 0 5px 0;
   }
 
-  .searh__errors-container {
+  &__errors-container {
     line-height: 2em;
     color: rgb(235, 28, 28);
   }
 }
 
-.tickers__list {
+.tickers-list {
   margin: 1.25em auto;
   width: min-content;
   list-style: none;
 
-  .tickers__item:not(:last-child) {
+  &__item:not(:last-child) {
     margin-bottom: 5px;  
   }
 }

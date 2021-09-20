@@ -1,15 +1,15 @@
 <template>
-  <div class="ticker__container">
-    <div class="ticker__number">
+  <div class="ticker">
+    <div class="ticker__number-container">
       {{ positionInList }}
     </div>
     <div
-      class="ticker__coin-info"
+      class="ticker__info-container"
       @click="handleCoinClick"
       @click.middle="handleCoinClick"
       @click.right="handleCoinClick"
     >
-      <img class="ticker__image" :src="ticker.imageUrl" :alt="ticker.name + ' logo'">
+      <img class="ticker__logo" :src="ticker.imageUrl" :alt="ticker.name + ' logo'">
       <p class="ticker__full-name">
         {{ ticker.coinName }}
       </p>
@@ -17,14 +17,14 @@
         {{ ticker.name }}
       </p>
     </div>
-    <p class="ticker__price">
+    <p class="ticker__price-container">
       <span class="ticker__price-wrapper">
         {{ formatedPrice }}
       </span>
     </p>
     <div class="ticker__button-container">
       <remove-button
-        class="ticker__remove-button"
+        class="ticker__button"
         v-if="isRemovable"     
         @click.native="handleRemoveButtonClick"
       />
@@ -81,7 +81,7 @@ $ticker-height: 4em;
 $ticker-height-390: 3.5em;
 $mediaMinWidth: 390px;
 
-.ticker__container {
+.ticker {
   height: $ticker-height;
   display: grid;
   grid-template-columns: 2em min-content 8em min-content;
@@ -95,12 +95,12 @@ $mediaMinWidth: 390px;
     height: $ticker-height-390;
   }
 
-  .ticker__number {
+  &__number-container {
     align-self: center;
     color: rgb(131, 131, 131);
   }
 
-  .ticker__coin-info {
+  &__info-container {
     display: grid;
     grid-template-columns: $ticker-height 7em;
     grid-template-rows: 2em, 2em;
@@ -113,62 +113,64 @@ $mediaMinWidth: 390px;
       grid-template-columns: $ticker-height-390 4.5em;
       grid-template-rows: $ticker-height-390;
     }
+  }
 
-    .ticker__image {
-      padding: 2px;
-      grid-row: span 2;
-      max-height: $ticker-height;
-      max-width: $ticker-height;
+  &__logo {
+    padding: 2px;
+    grid-row: span 2;
+    height: $ticker-height;
+    width: $ticker-height;
 
-      @media(max-width:$mediaMinWidth) {
-        max-height: $ticker-height-390;
-        max-width: $ticker-height-390;
-      }
+    @media(max-width:$mediaMinWidth) {
+      height: $ticker-height-390;
+      width: $ticker-height-390;
     }
+  }
 
-    .ticker__full-name {
-      display: -webkit-box;
-      -webkit-box-orient: vertical;
-      -webkit-line-clamp: 2;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      align-self: end;
-      text-align: left;
+  &__full-name {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    align-self: end;
+    text-align: left;
+    font-weight: bold;
+
+    @media(max-width:$mediaMinWidth) {
+      display: none;
+    }
+  }
+
+  &__short-name {
+    align-self: start;
+    text-align: left;
+    color: rgb(131, 131, 131);
+
+    @media(max-width:$mediaMinWidth) {
+      min-width: 4.5em;
+      max-width: 6em;
+      align-self: center;
+      color: #2c3e50;
       font-weight: bold;
-
-      @media(max-width:$mediaMinWidth) {
-        display: none;
-      }
-    }
-
-    .ticker__short-name {
-      align-self: start;
-      text-align: left;
-      color: rgb(131, 131, 131);
-
-      @media(max-width:$mediaMinWidth) {
-        align-self: center;
-        color: #2c3e50;
-        font-weight: bold;
-      }
     }
   }
 
-  .ticker__price {
+  &__price-container {
     align-self: center;
-
-    .ticker__price-wrapper {
-      display: inline-block;
-      line-height: 1.4em;
-      width: 90%;
-      border: solid 1px rgb(231, 231, 231);
-      border-radius: 5px;
-      background-color: rgb(248, 248, 248);
-      text-align: center;
-    }
   }
 
-  .ticker__button-container {
+  &__price-wrapper {
+    display: inline-block;
+    line-height: 1.4em;
+    width: 90%;
+    border: solid 1px rgb(231, 231, 231);
+    border-radius: 5px;
+    background-color: rgb(248, 248, 248);
+    text-align: center;
+  }
+
+  &__button-container {
     padding: 1px;
     width: 2.5em;
     text-align: right;
@@ -176,11 +178,11 @@ $mediaMinWidth: 390px;
     @media(max-width:$mediaMinWidth) {
       align-self: center;
     }
-
-    .ticker__remove-button {
-      width: 32px;
-      height: 32px;
-    }
   }   
+
+  &__button {
+    width: 32px;
+    height: 32px;
+  }
 }
 </style>

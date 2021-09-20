@@ -109,8 +109,8 @@ export default {
 
 <style scoped>
 .wrapper {
-  margin: 0 auto;
-  max-width: 1000px;
+  /* margin: 0 auto;
+  max-width: 1000px; */
 }
 
 .coin-info__container {

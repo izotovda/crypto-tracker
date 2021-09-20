@@ -3,18 +3,22 @@
     <div v-if="!isCoinListLoaded" class="backdrop">
       Loading...
     </div>
-    <div id="nav">
-      <router-link :to="{name: 'Home', params: {coinList: coinList}}"> Home </router-link> |
-      <router-link to="/about">About</router-link>
+    <c-header :coinList="coinList"/>
+    <div class="main-body">
+      <router-view :coinList="coinList"/>
     </div>
-    <router-view :coinList="coinList"/>
   </div>
 </template>
 
 <script>
 import { getCoinList } from "./api.js";
+import CHeader from "./components/CHeader.vue";
 
 export default ({
+  components: {
+    CHeader
+  },
+  
   data() {
     return {
       isCoinListLoaded: false,
@@ -63,6 +67,11 @@ html, body {
   opacity: 80%;
   background: rgb(15, 124, 12);
   color:honeydew;
+}
+
+.main-body {
+  margin: 0 auto;
+  max-width: 920px;
 }
 
 #nav {

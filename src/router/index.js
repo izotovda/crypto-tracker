@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
+import CustomList from '../views/CustomList.vue'
+import TopList from '../views/TopList.vue'
 import Coins from '../views/Coins.vue'
 
 Vue.use(VueRouter)
@@ -8,8 +9,19 @@ Vue.use(VueRouter)
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: Home
+    redirect: '/custom-list'
+  },
+
+  {
+    path: '/custom-list',
+    name: 'Custom list',
+    component: CustomList
+  },
+
+  {
+    path: '/top-list',
+    name: 'Top list',
+    component: TopList
   },
 
   {
