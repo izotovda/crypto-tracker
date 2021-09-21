@@ -1,6 +1,5 @@
 <template>
   <header class="header">
-    <!-- find better solution for backdrop later -->
     <div v-if="isMenuActive" @click="toggleMenu" class="header__backdrop"></div>
     <div class="header__body">
       <div class="header__container">
@@ -13,7 +12,6 @@
           />
           <!-- transition is not finished yet -->
           <transition name="slide">
-            <!-- set event listeners for everi Li -->
             <ul class="menu__list" :class="{'menu__list-hidden': !isMenuActive}">
               <li
                 class="menu__item"
@@ -38,11 +36,11 @@
 <script>
 import AutocompleteSearch from "./AutocompleteSearch.vue";
 import MenuButton from './MenuButton.vue';
-// import _ from 'lodash';
+import _ from 'lodash';
+// implement custom debounce later
+// import { debounce } from '../common-functions/debounce.js';
 
 export default {
- ROUTES: ["/custom-list", "/top list", "/about"],
- 
   components: {
     AutocompleteSearch,
     MenuButton,
@@ -57,49 +55,47 @@ export default {
   data() {
     return {
       isMenuActive: false,
-      routes: [{name: "Custom list"}, {name: "Top list"}, {name: "About"}]
-      // currentWindowWidth: document.documentElement.clientWidth
+      routes: [{name: "Custom list"}, {name: "Top list"}, {name: "About"}],
+      currentWindowWidth: document.documentElement.clientWidth
     }
   },
 
-  // computed: {
-  //   isWidthLessThenTreshhold() {
-  //     const mediaMinWidth = 430;
-  //     if (this.currentWindowWidth <= mediaMinWidth) return true;
-  //     else return false;
-  //   }
-  // },
+  watch: {
+    // method resets menu when changed to dekstop version
+    currentWindowWidth() {
+      const minWidthTrreshhold = 500;
+      if (this.currentWindowWidth > minWidthTrreshhold) this.isMenuActive = false;
+    }
+  },
 
-  // watch: {
-  //   isWidthLessThenTreshhold() {
-  //     console.log(`${this.currentWindowWidth} <= 430 - ${this.isWidthLessThenTreshhold}`)
-  //   }
-  // },
+  created() {
+    // implement custom debounce later
+    this.updateWidth = _.debounce(this.updateWidth, 150);
 
-  // created() {
-  //   // re-do eventListener with usage of throttling later
-  //   window.addEventListener("resize", this.updateWindowWidth);
-  // },
+    // 'resize' evenListener aadded to reset menu when changed to dekstop version
+    window.addEventListener("resize", this.updateWidth);
+  },
 
-  // destroyed() {
-  //   window.removeEventListener("resize", this.updateWindowWidth);
-  // },
+  destroyed() {
+    window.removeEventListener("resize", this.updateWidth);
+  },
 
   methods: {
     toggleMenu() {
       this.isMenuActive = !this.isMenuActive;
     },
 
-    // updateWindowWidth(event) {
-    //   _.debounce(() => {this.currentWindowWidth = event.target.innerWidth}, 2000);  
-    // }
+    updateWidth(event) {
+      this.currentWindowWidth = event.target.innerWidth;
+      console.log(`${event.target.innerWidth} - ${this.currentWindowWidth}`);
+    }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-// if "mediaMinWidth" is changed, change the value in the method for resize event handler!
-$mediaMinWidth: 430px;
+// if "mediaMinWidth" is changed, change the value in created() for resize event handler (minWidthTrreshhold)!
+$mediaMinWidth: 500px;
 $background-color: #e4ebee;
 
 .header {
@@ -115,14 +111,14 @@ $background-color: #e4ebee;
     background-color: rgba(0,0,0,0.35);
     cursor: pointer;
 
-    @media(min-width: $mediaMinWidth) {
+    @media(min-width: $mediaMinWidth + 1) {
       display: none;
     }
   }
 
   &__body {
     position: relative;
-    height: 46px;
+    height: 54px;
     background-color: $background-color;
   }
 
@@ -135,7 +131,6 @@ $background-color: #e4ebee;
     grid-template-columns: max-content max-content;
     column-gap: 32px;
     justify-content: center;
-    // border: solid 1px black;
 
     @media(max-width: $mediaMinWidth) {
       justify-content: space-between;
@@ -143,11 +138,13 @@ $background-color: #e4ebee;
   }
 
   &__autocomplete {
+    margin-left: 24px;
     width: 200px;
     align-self: center;
 
     @media(max-width: $mediaMinWidth) {
-      margin-left: 9px;
+      margin-left: 24px;
+      width: 180px;
     }
   }
 
@@ -161,7 +158,7 @@ $background-color: #e4ebee;
     display: none;
 
     @media(max-width: $mediaMinWidth) {
-      margin-right: 9px;
+      margin-right: 16px;
       display: block;
     }
   }
@@ -186,20 +183,20 @@ $background-color: #e4ebee;
       &-hidden {
         display: none;
       }
-    }
-  }
 
-  // menu transitions
-  .slide-enter-active,
-  .slide-leave-active
-    {
+      // menu transitions
+      .slide-enter-active,
+      .slide-leave-active
+      {
         transition: transform 0.2s ease;
-    }
+      }
 
-  .slide-enter,
-  .slide-leave-to {
-      transform: translateY(-100%);
-      transition: all 150ms ease-in 0s
+      .slide-enter,
+      .slide-leave-to {
+        transform: translateY(-100%);
+        transition: all 150ms ease-in 0s
+      }
+    }
   }
 
   &__item {
@@ -207,7 +204,7 @@ $background-color: #e4ebee;
 
     &:last-child {
       @media(min-width: $mediaMinWidth + 1) {
-        margin-right: 16px;
+        margin-right: 24px;
       }
     }
   }

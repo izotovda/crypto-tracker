@@ -156,7 +156,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-$height: 30px;
+$height: 32px;
 
 .autocomplete {
   width: 240px;
