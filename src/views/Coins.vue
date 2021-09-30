@@ -37,19 +37,20 @@
 </template>
 
 <script>
-import { getHourlyPairData } from "../api.js";
 import LineChart from "../components/LineChart.vue";
+import { CoinList } from "../store/services/CoinList.js";
+import { getHourlyPairData } from "../api.js";
+
 
 export default {
-  components: { LineChart },
+  components: { 
+    LineChart 
+  },
+
   props: {
     coin: {
       type: String,
       required: true
-    },
-
-    coinList: {
-      default: null,
     },
   },
 
@@ -63,7 +64,7 @@ export default {
 
   computed: {
     coinData() {
-      return this.coinList?.[this.coin.toUpperCase()] || {}
+      return CoinList.getCoinData(this.coin.toUpperCase()) || {};
     },
 
     chartData() {

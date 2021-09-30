@@ -5,6 +5,29 @@ const tickersHandlers = new Map();
 const url = new URL('https://min-api.cryptocompare.com/data/pricemulti?tsyms=USD');
 url.searchParams.set('api_key', API_KEY);
 
+export const updateTickersPrice = tickers => {
+  if (!tickers.length) return
+
+  url.searchParams.set('fsyms', tickers.join());
+
+  fetch(url)
+    .then(resolve => resolve.json())
+    .then(priceList => {
+      tickersHandlers.forEach((fn, coinName) => {
+        if (priceList[coinName]) fn(priceList[coinName].USD);
+      });
+    })
+    .catch(error => console.log(error));
+};
+
+export const subscribeTicker = (ticker, fn) => {
+  tickersHandlers.set(ticker, fn);
+};
+
+export const unsubscribeTicker = (ticker) => {
+  tickersHandlers.delete(ticker);
+};
+
 export const getCoinList = () => {
   return fetch('https://min-api.cryptocompare.com/data/all/coinlist')
     .then(resolve => resolve.json())
@@ -34,26 +57,3 @@ export const getHourlyPairData = async (coinName) => {
     console.log(error);
   }
 };
-
-export const updateTickersPrice = tickers => {
-  if (!tickers.length) return
-
-  url.searchParams.set('fsyms', tickers.join());
-
-  fetch(url)
-    .then(resolve => resolve.json())
-    .then(priceList => {
-      tickersHandlers.forEach((fn, coinName) => {
-        if (priceList[coinName]) fn(priceList[coinName].USD);
-      });
-    })
-    .catch(error => console.log(error));
-};
-
-export const subscribeTicker = (ticker, fn) => {
-  tickersHandlers.set(ticker, fn);
-}
-
-export const unsubscribeTicker = (ticker) => {
-  tickersHandlers.delete(ticker);
-}

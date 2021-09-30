@@ -1,18 +1,17 @@
 <template>
-  <div class="container">
+  <div>
     <h1>Custom coin list</h1>
     <p>Enter coin name below to start tracking it. You can see additional information by clicking on coin name or logo.</p>
     <div class="search">
-      <!-- re-do with v-model later -->
       <autocomplete-search
-        class="searh__autocomplete"
+        class="search__autocomplete"
         :suggestions="suggestions"
-        @submit="handleSubmit"
+        @submit="addTicker"
         @input="updateTickerToAdd"
         placeholder="Enter coin name"
         :autofocus="true"
       />
-      <div class="searh__errors-container">
+      <div class="search__errors-container">
         <span v-if="isTickerNameInvalid">Invalid token name</span>
         <span v-if="isTickerAlreadyAdded">Token is already added</span>
       </div>
@@ -20,7 +19,7 @@
     <ul class="tickers-list">    
       <li
         class="tickers-list__item"
-        v-for="(ticker, index) in trackedTickers"
+        v-for="(ticker, index) in CustomTickerList"
         :key="index"
       >
         <currency-ticker
@@ -38,6 +37,8 @@
 import { subscribeTicker, unsubscribeTicker, updateTickersPrice } from "../api.js";
 import AutocompleteSearch from "../components/AutocompleteSearch.vue";
 import CurrencyTicker from "../components/CurrencyTicker.vue";
+import { CustomTickerList } from "../store/services/CustomTickerList.js";
+import { CoinList } from "../store/services/CoinList.js";
 
 export default {
   components: {
@@ -45,37 +46,39 @@ export default {
     CurrencyTicker
   },
 
-  props: {
-    coinList: {
-      default: null,
-    },
-  },
-
   data() {
     return {
       tickerToAdd: "",
       suggestions: [],
-      trackedTickers: [],
       isTickerNameInvalid: false,
       isTickerAlreadyAdded: false,
     };
   },
 
-  created() {
-    const tickers = localStorage.getItem('tickers');
+  computed: {
+    CustomTickerList() {
+      return CustomTickerList.get();
+    }
+  },
 
-    if (tickers) {
-      this.trackedTickers = [...JSON.parse(tickers)];
-      this.trackedTickers.forEach(t => {
+  created() {
+    // load tickers from local storage
+    const tickers = localStorage.getItem('tickers');
+    
+    if (tickers) {  
+      CustomTickerList.set(JSON.parse(tickers));
+
+      this.CustomTickerList.forEach(t => {
         t.price = "-";
-        subscribeTicker(t.name, (newPrice) => this.updateTickerPrice(t.name, newPrice));
-      });
+        subscribeTicker(t.name, (newPrice) => CustomTickerList.setPrice(t, newPrice));
+      })
     }
 
+    // set interval for price update
     const tickerUpdateInterval = 2000;
 
     this.$options.intervalId = setInterval(
-      () => updateTickersPrice(this.trackedTickers.map((t) => t.name)),
+      () => updateTickersPrice(CustomTickerList.get().map((t) => t.name)),
       tickerUpdateInterval
     );
   },
@@ -85,105 +88,55 @@ export default {
   },
 
   watch: {
-    trackedTickers() {
-      localStorage.setItem('tickers', JSON.stringify(this.trackedTickers));
+    CustomTickerList() {
+      localStorage.setItem('tickers', JSON.stringify(this.CustomTickerList));
     },
 
     tickerToAdd() {
       this.resetErrorMessages();
 
-      // return if input value is empty or contains only spaces
+      // form suggestion list if input value is not empty nor contains only spaces
       if (!this.tickerToAdd.trim().length || /\\/.test(this.tickerToAdd)) { 
         return;
       }
-      
-      const coinList = this.coinList;
-      this.suggestions = [];
-
-      for (const coin in coinList) {
-          const regexp = new RegExp(`^${this.tickerToAdd}`, "gi"); // Переделать работу со скобками! 
-
-          // add a suggestion if full name or short name starts with input data
-          if (coinList[coin].fullName.match(regexp) || coinList[coin].name.match(regexp)) {
-          this.suggestions.push(coinList[coin].fullName);
-        }
-      }  
+      this.suggestions = CoinList.findAllMatches(this.tickerToAdd);
     },
   },
 
   methods: {
-    updateTickerToAdd(ticker) { // re-do with v-model later
-      this.tickerToAdd = ticker;
+    updateTickerToAdd(inputValue) {
+      this.tickerToAdd = inputValue;
     },
 
-    handleSubmit(ticker) { // re-do with v-model later
-      this.addTicker(ticker),
-      this.tickerToAdd = "";
-    },
+    addTicker(tickerName) {
+      const ticker = CoinList.getCoinData(tickerName);
 
-    addTicker(ticker) {
-      const tickerData = this.getTickerData(ticker);
-
-      if (!tickerData) {
+      // check if coin with that name exists
+      if (!ticker) {
         this.isTickerNameInvalid = true;
-      } else {
-        this.checkIfAlreadyAdded(tickerData.name);
-
-        if (!this.isTickerAlreadyAdded) {
-
-          this.trackedTickers.push(tickerData);
-
-          subscribeTicker(tickerData.name, (newPrice) => this.updateTickerPrice(tickerData.name, newPrice));
-          }
+        return;
       }
+      
+      // check if custom-ticker-list already contains coin with that name 
+      this.checkIfAlreadyAdded(ticker.name);
+      if (this.isTickerAlreadyAdded) return;
+
+      CustomTickerList.add(ticker);
+      subscribeTicker(ticker.name, (newPrice) => CustomTickerList.setPrice(ticker, newPrice));
     },
 
-    removeTicker(tickerToRemove) {
-      this.trackedTickers = this.trackedTickers.filter(t => t != tickerToRemove);
-
-      unsubscribeTicker(tickerToRemove.name);
-    },
-
-    updateTickerPrice(tickerName, newPrice) {
-      this.trackedTickers.forEach(t => {
-        if (t.name === tickerName) {
-          t.price = newPrice;
-        }
-      });
-
-      const tickerToUpdate = this.trackedTickers.filter(t => t.name === tickerName).map(t => t[0]);
-      tickerToUpdate.price = newPrice;
-    },
-
-    getTickerData(name) {
-      const coinList = this.coinList;
-
-      for (const coin in coinList) {
-        if (
-          name.toUpperCase() === coinList[coin].fullName.toUpperCase() ||
-          name.toUpperCase() === coinList[coin].coinName.toUpperCase() ||
-          name.toUpperCase() === coinList[coin].name.toUpperCase()
-        ) {
-          return {
-            name: coinList[coin].name,
-            coinName: coinList[coin].coinName,
-            price: "-",
-            imageUrl: coinList[coin].imageUrl
-          };
-        }
-      } 
+    removeTicker(ticker) {
+      CustomTickerList.remove(ticker);
+      unsubscribeTicker(ticker.name);
     },
 
     checkIfAlreadyAdded(tickerName) {
-      let isAdded = false;
-
-      for (const ticker of this.trackedTickers) {
+      for (const ticker of this.CustomTickerList) {
         if (ticker.name === tickerName) {
-          isAdded = true;
+          this.isTickerAlreadyAdded = true;
+          return;
         }
       }
-
-      this.isTickerAlreadyAdded = isAdded;
     },
 
     resetErrorMessages() {
@@ -192,9 +145,11 @@ export default {
     },
 
     openCoinPage(event, coinName) {
-      const routerProperties = {name: 'Coins', params: {coin: coinName, coinList: this.coinList}};
+      const routerProperties = {name: 'Coins', params: {coin: coinName}};
 
-      if (event.which === 1) this.$router.push(routerProperties);
+      if (event.which === 1) {
+        this.$router.push(routerProperties);
+      }
 
       if (event.which === 2) {
         const newRoute = this.$router.resolve(routerProperties);
@@ -206,18 +161,13 @@ export default {
 </script> 
 
 <style lang="scss" scoped>
-.container {
-  margin-top: 16px;
-  // border: solid 1px black;
-}
-
 .search {
   height: 64px;
   width: 240px;
   margin: 0 auto;
 
   &__autocomplete {
-    margin: 0 0 5px 0;
+    margin: 5px 0;
   }
 
   &__errors-container {

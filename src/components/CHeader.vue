@@ -3,30 +3,33 @@
     <div v-if="isMenuActive" @click="toggleMenu" class="header__backdrop"></div>
     <div class="header__body">
       <div class="header__container">
-        <autocomplete-search class="header__autocomplete" placeholder="Search coin"/>
+        <autocomplete-search
+          class="header__autocomplete"
+          :suggestions="suggestions"
+          @input="updateInputValue"
+          @submit="openCoinPage"
+          placeholder="Search coin"
+        />
         <nav class="header__menu menu">
           <menu-button 
             class="menu__button"
             :isMenuActive="isMenuActive"
             @toggle="toggleMenu"
           />
-          <!-- transition is not finished yet -->
-          <transition name="slide">
-            <ul class="menu__list" :class="{'menu__list-hidden': !isMenuActive}">
-              <li
-                class="menu__item"
-                v-for="(route, index) in routes"
-                :key="index"
-              >
-                <router-link
-                  class="menu__link"
-                  :to="route"
-                  @click.native="toggleMenu">
-                  {{ route.name }}
-                </router-link>              
-              </li>
-            </ul>
-          </transition>
+          <ul class="menu__list" :class="{'menu__list-hidden': !isMenuActive}">
+            <li
+              class="menu__item"
+              v-for="(route, index) in routes"
+              :key="index"
+            >
+              <router-link
+                class="menu__link"
+                :to="route"
+                @click.native="isMenuActive = false">
+                {{ route.name }}
+              </router-link>              
+            </li>
+          </ul>
         </nav>
       </div>  
     </div>
@@ -36,9 +39,8 @@
 <script>
 import AutocompleteSearch from "./AutocompleteSearch.vue";
 import MenuButton from './MenuButton.vue';
-import _ from 'lodash';
-// implement custom debounce later
-// import { debounce } from '../common-functions/debounce.js';
+import { debounce } from '../common-methods/debounce.js';
+import { CoinList } from '../store/services/CoinList.js';
 
 export default {
   components: {
@@ -46,22 +48,24 @@ export default {
     MenuButton,
   },
 
-  props: { // delete later
-    coinList: {
-      type: Object
-    }
-  },
-
   data() {
     return {
       isMenuActive: false,
-      routes: [{name: "Custom list"}, {name: "Top list"}, {name: "About"}],
-      currentWindowWidth: document.documentElement.clientWidth
+      searchInputValue: "",
+      suggestions: [],
+      currentWindowWidth: document.documentElement.clientWidth,
+      routes: [{name: "Custom list"}, {name: "Top list"}, {name: "About"}]
     }
   },
 
   watch: {
-    // method resets menu when changed to dekstop version
+    searchInputValue() {
+      if (!this.searchInputValue.trim().length || /\\/.test(this.searchInputValue)) { 
+        return;
+      }
+      this.suggestions = CoinList.findAllMatches(this.searchInputValue);
+    },
+
     currentWindowWidth() {
       const minWidthTrreshhold = 500;
       if (this.currentWindowWidth > minWidthTrreshhold) this.isMenuActive = false;
@@ -69,10 +73,9 @@ export default {
   },
 
   created() {
-    // implement custom debounce later
-    this.updateWidth = _.debounce(this.updateWidth, 150);
+    this.updateWidth = debounce(this.updateWidth, 150);
 
-    // 'resize' evenListener aadded to reset menu when changed to dekstop version
+    // 'resize' evenListener aadded to close menu when navigation changes to dekstop version
     window.addEventListener("resize", this.updateWidth);
   },
 
@@ -85,9 +88,17 @@ export default {
       this.isMenuActive = !this.isMenuActive;
     },
 
+    updateInputValue(inputValue) {
+      this.searchInputValue = inputValue;
+    },
+
+    openCoinPage(coinName) {
+      const routerProperties = {name: 'Coins', params: {coin: coinName}};
+      this.$router.push(routerProperties);
+    },
+
     updateWidth(event) {
       this.currentWindowWidth = event.target.innerWidth;
-      console.log(`${event.target.innerWidth} - ${this.currentWindowWidth}`);
     }
   }
 }
@@ -100,7 +111,7 @@ $background-color: #e4ebee;
 
 .header {
   position: relative;
-  z-index: 999;
+  z-index: 900;
 
   &__backdrop {
     position: fixed;
@@ -183,19 +194,6 @@ $background-color: #e4ebee;
       &-hidden {
         display: none;
       }
-
-      // menu transitions
-      .slide-enter-active,
-      .slide-leave-active
-      {
-        transition: transform 0.2s ease;
-      }
-
-      .slide-enter,
-      .slide-leave-to {
-        transform: translateY(-100%);
-        transition: all 150ms ease-in 0s
-      }
     }
   }
 
@@ -212,6 +210,7 @@ $background-color: #e4ebee;
   &__link {
     font-weight: bold;
     color: #2c3e50;
+    text-decoration: none;
 
     &.router-link-exact-active {
       color: #42b983;

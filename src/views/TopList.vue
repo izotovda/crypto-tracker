@@ -1,3 +1,3 @@
 <template>
-  <div>В разработке</div>
+  <div>Page is not developed yet.</div>
 </template>

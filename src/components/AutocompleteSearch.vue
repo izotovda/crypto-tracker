@@ -3,6 +3,7 @@
     <input
       class="autocomplete__input"
       v-model="inputValue"
+      @input="handleInput"
       @focus="showSuggestions"
       @blur="hideSuggestions"
       @keydown.down="selectNextSuggestion"
@@ -11,7 +12,6 @@
       @click="selectedSuggestion = null"
       @keydown.enter="submitValue"
       @keydown.escape="blur"
-      @input="handleInput"
       :autofocus="autofocus === true"
       :placeholder="placeholder"
     /> 
@@ -177,7 +177,7 @@ $height: 32px;
   }
 
   &__suggestions-list {
-    position: absolute; // added to have priority in stacking, if needed add z-index
+    position: absolute; // added to have priority in stacking. add z-index if needed
     width: inherit; // "inherit" over "100%" since "%" doesnt work properly with "position: absolute"
     max-height: 200px;
     overflow: auto;

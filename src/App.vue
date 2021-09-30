@@ -3,18 +3,19 @@
     <div v-if="!isCoinListLoaded" class="backdrop">
       Loading...
     </div>
-    <c-header :coinList="coinList"/>
+    <c-header/>
     <div class="main-body">
-      <router-view :coinList="coinList"/>
+      <router-view/>
     </div>
   </div>
 </template>
 
 <script>
-import { getCoinList } from "./api.js";
 import CHeader from "./components/CHeader.vue";
+import { CoinList } from "./store/services/CoinList.js";
+import { getCoinList } from "./api.js";
 
-export default ({
+export default {
   components: {
     CHeader
   },
@@ -22,17 +23,16 @@ export default ({
   data() {
     return {
       isCoinListLoaded: false,
-      coinList: null,
     }
-  },
+  },  
 
   created() {
     getCoinList().then(loadedList => {
-      this.coinList = loadedList;
+      CoinList.set(loadedList);
       this.isCoinListLoaded = true;
     });
-  }
-})
+  },
+}
 </script>
 
 <style>
@@ -44,7 +44,7 @@ export default ({
 }
 
 html, body {
-    height:100%; /*both html and body*/
+    height:100%;
 }
 
 .app {
@@ -60,7 +60,7 @@ html, body {
   position: fixed;
   width: 100%;
   height: 100%;
-  z-index: 50;
+  z-index: 999;
   display: flex;
   align-items: center;
   justify-content: center;
