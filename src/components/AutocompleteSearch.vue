@@ -142,6 +142,7 @@ export default {
 
     resetInputValue() {
       this.inputValue = "";
+      this.$emit("input", this.inputValue)
     },
 
     resetSuggestionList() {

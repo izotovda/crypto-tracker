@@ -1,7 +1,7 @@
 <template>
-  <div class="wrapper">
+  <div>
     <img :src="coinData.imageUrl" alt="Token icon">
-    <h1>{{ coinData.fullName }}</h1>
+    <h1>{{ coinData.coinName }} ({{ coinData.name }})</h1>
     <a
       class="coin-info__button"
       :class="{'coin-info__button_active': activeWindow === 'description'}"
@@ -52,6 +52,17 @@ export default {
       type: String,
       required: true
     },
+  },
+
+  created() {
+    if (!this.coinData.name) this.$router.push({ name: "NotFound" });
+  },
+
+  beforeRouteUpdate(to, from, next) {
+    const nextCoinData = CoinList.getCoinData(to.params.coin.toUpperCase());
+    if (nextCoinData) next();
+    // else next({ name: "NotFound" });
+    else this.$router.push({ name: "NotFound" });
   },
 
   data() {
@@ -109,11 +120,6 @@ export default {
 </script>
 
 <style scoped>
-.wrapper {
-  /* margin: 0 auto;
-  max-width: 1000px; */
-}
-
 .coin-info__container {
   margin-top: 10px;
 }

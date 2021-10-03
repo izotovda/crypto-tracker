@@ -92,9 +92,9 @@ export default {
       this.searchInputValue = inputValue;
     },
 
-    openCoinPage(coinName) {
+    async openCoinPage(coinName) {
       const routerProperties = {name: 'Coins', params: {coin: coinName}};
-      this.$router.push(routerProperties);
+      this.$router.push(routerProperties, () => {});
     },
 
     updateWidth(event) {

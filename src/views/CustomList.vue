@@ -147,10 +147,12 @@ export default {
     openCoinPage(event, coinName) {
       const routerProperties = {name: 'Coins', params: {coin: coinName}};
 
+      // handle left click
       if (event.which === 1) {
         this.$router.push(routerProperties);
       }
 
+      // handle middle click
       if (event.which === 2) {
         const newRoute = this.$router.resolve(routerProperties);
         window.open(newRoute.href);

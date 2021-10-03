@@ -4,8 +4,8 @@
       Loading...
     </div>
     <c-header/>
-    <div class="main-body">
-      <router-view/>
+    <div class="content">
+      <router-view v-if="isCoinListLoaded"/>
     </div>
   </div>
 </template>

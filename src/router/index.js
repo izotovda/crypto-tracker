@@ -1,10 +1,10 @@
 import Vue from 'vue'
-import VueRouter from 'vue-router'
+import Router from 'vue-router'
 import CustomList from '../views/CustomList.vue'
 import TopList from '../views/TopList.vue'
 import Coins from '../views/Coins.vue'
 
-Vue.use(VueRouter)
+Vue.use(Router)
 
 const routes = [
   {
@@ -37,11 +37,18 @@ const routes = [
     path: '/coins/:coin',
     name: 'Coins',
     component: Coins,
-    props: true
+    props: true,
+  },
+
+  {
+    path: '/404',
+    alias: "*",
+    name: 'NotFound',
+    component: () => import(/* webpackChunkName: "NotFound" */ '../views/NotFound.vue')
   }
 ]
 
-const router = new VueRouter({
+const router = new Router({
   // disabled since history mode doenst work properly with github pages and production build.
   // mode: 'history',
   base: process.env.BASE_URL,
