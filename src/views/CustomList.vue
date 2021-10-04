@@ -7,7 +7,7 @@
         class="search__autocomplete"
         :suggestions="suggestions"
         @submit="addTicker"
-        @input="updateTickerToAdd"
+        @input-change="updateTickerToAdd"
         placeholder="Enter coin name"
         :autofocus="true"
       />
@@ -92,9 +92,7 @@ export default {
       localStorage.setItem('tickers', JSON.stringify(this.CustomTickerList));
     },
 
-    tickerToAdd() {
-      this.resetErrorMessages();
-
+    tickerToAdd() {     
       // form suggestion list if input value is not empty nor contains only spaces
       if (!this.tickerToAdd.trim().length || /\\/.test(this.tickerToAdd)) { 
         return;
@@ -106,6 +104,7 @@ export default {
   methods: {
     updateTickerToAdd(inputValue) {
       this.tickerToAdd = inputValue;
+      this.resetErrorMessages();
     },
 
     addTicker(tickerName) {

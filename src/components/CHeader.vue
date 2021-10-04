@@ -6,7 +6,7 @@
         <autocomplete-search
           class="header__autocomplete"
           :suggestions="suggestions"
-          @input="updateInputValue"
+          @input-change="updateInputValue"
           @submit="openCoinPage"
           placeholder="Search coin"
         />

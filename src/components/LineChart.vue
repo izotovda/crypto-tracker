@@ -29,21 +29,33 @@ export default {
     }
   },
 
+  // watch: {
+  //   chartData() {
+  //     this.renderLineChart();
+  //   }
+  // },
+
   mounted() {
-    const xData = this.chartData.map(point => point.x);
-    const yData = this.chartData.map(point => point.y);
+    this.renderLineChart();
+  },
 
-    this.renderChart({
-      labels: xData,
+  methods: {
+    renderLineChart() {
+      const xData = this.chartData.map(point => point.x);
+      const yData = this.chartData.map(point => point.y);
 
-      datasets: [{
-        label: this.label,
-        data: yData,
-        borderColor: "#49A078",
-        backgroundColor: "rgba(73, 160, 120, 0.2)",
-        borderWidth: 1.5
-      }],
-    }, this.options);
+      this.renderChart({
+        labels: xData,
+
+        datasets: [{
+          label: this.label,
+          data: yData,
+          borderColor: "#49A078",
+          backgroundColor: "rgba(73, 160, 120, 0.2)",
+          borderWidth: 1.5
+        }],
+      }, this.options);     
+    }
   }
 }
 </script>

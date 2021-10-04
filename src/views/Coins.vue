@@ -26,7 +26,7 @@
       <div>
         <p v-if="isDataNotFound">Data not found</p>
         <line-chart
-          v-if="isLoaded && !isDataNotFound"
+          v-if="isChartDataLoaded && !isDataNotFound"
           label="Price, $"
           :chartData="chartData"
         />
@@ -59,9 +59,15 @@ export default {
   },
 
   beforeRouteUpdate(to, from, next) {
+    // check if coin exists, push to 404 if not
     const nextCoinData = CoinList.getCoinData(to.params.coin.toUpperCase());
-    if (nextCoinData) next();
-    // else next({ name: "NotFound" });
+    if (nextCoinData) {
+      next();
+
+      // update line chart
+      this.isChartDataLoaded = false;
+      this.getHourlyData(nextCoinData.name).then(() => this.isChartDataLoaded = true);
+    }
     else this.$router.push({ name: "NotFound" });
   },
 
@@ -69,7 +75,7 @@ export default {
     return {
       activeWindow: "description",
       hourlyData: [],
-      isLoaded: false,
+      isChartDataLoaded: false,
     }
   },
 
@@ -102,18 +108,19 @@ export default {
   },
 
   methods: {
-    switchToHourlyChart() {
+    async switchToHourlyChart() {
       this.activeWindow = "hourlyChart";
-      this.getHourlyData();     
+      await this.getHourlyData(this.coinData.name);
+      this.isChartDataLoaded = true;     
     },
 
     switchToDescription() {
       this.activeWindow = "description";
+      this.isChartDataLoaded = false;
     },
 
-    async getHourlyData() {
-      this.hourlyData = await getHourlyPairData(this.coinData.name);
-      this.isLoaded = true;
+    async getHourlyData(coinName) {
+      this.hourlyData = await getHourlyPairData(coinName); 
     },
   },  
 }

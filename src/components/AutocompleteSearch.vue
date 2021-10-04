@@ -123,7 +123,7 @@ export default {
     },
 
     handleInput() {
-      this.$emit("input", this.inputValue);
+      this.$emit("input-change", this.inputValue);
       this.resetSuggestionList();
     },
 
@@ -134,15 +134,15 @@ export default {
         ? this.inputValue
         : this.selectedSuggestion;
 
-      this.$emit('submit', valueToPass);
-
       this.resetInputValue();
       this.resetSuggestionList();
+
+      this.$emit('submit', valueToPass);
     },
 
     resetInputValue() {
       this.inputValue = "";
-      this.$emit("input", this.inputValue)
+      this.$emit("input-change", this.inputValue);
     },
 
     resetSuggestionList() {
