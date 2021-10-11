@@ -199,6 +199,7 @@ $mediaMinWidth: 653px;
 
   &__logo {
     width: 100%;
+    height: 150px;
     border: solid 1px rgb(200, 200, 200);
 
     @media(max-width: $mediaMinWidth) {
@@ -263,13 +264,13 @@ $mediaMinWidth: 653px;
       margin-right: 5px;
     }
 
-    &_active {
-      border-bottom: 1px solid;
-    }
-
     &:hover {
       color: #42b983;
     } 
+
+    &_active {
+      border-bottom: 1px solid;
+    }
   }
 
   &__text {

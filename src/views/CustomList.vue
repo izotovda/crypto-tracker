@@ -9,7 +9,6 @@
         @submit="addTicker"
         @input-change="updateTickerToAdd"
         placeholder="Enter coin name"
-        :autofocus="true"
       />
       <div class="search__errors-container">
         <span v-if="isTickerNameInvalid">Invalid token name</span>

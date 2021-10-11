@@ -12,7 +12,6 @@
       @click="selectedSuggestion = null"
       @keydown.enter="submitValue"
       @keydown.escape="blur"
-      :autofocus="autofocus === true"
       :placeholder="placeholder"
     /> 
     <div 
@@ -40,11 +39,6 @@ export default {
   props: {
     suggestions: {
       type: Array
-    },
-
-    autofocus: {
-      type: Boolean,
-      default: false
     },
 
     placeholder: {
@@ -172,9 +166,10 @@ $height: 32px;
     line-height: $height;
     border: none;
     outline: none;
+    background-color: inherit;
+    -webkit-appearance: none;
     box-shadow: 0px 1px 2px 1px rgba(0, 0, 0, 0.12);
     font-size: 16px;
-    background-color: inherit;
   }
 
   &__suggestions-list {
