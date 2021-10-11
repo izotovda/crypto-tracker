@@ -9,6 +9,7 @@ Vue.use(Router)
 const routes = [
   {
     path: '/',
+    name: 'Default',
     redirect: '/custom-list'
   },
 

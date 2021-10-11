@@ -1,16 +1,28 @@
-const API_KEY = `893bab5ecbccecb436271b0f965e0efac90f674f38d5d0c4955dd78a9877e235`;
+const singlePriceURL = new URL('https://min-api.cryptocompare.com/data/price?tsyms=USD');
+const multiPriceURL = new URL('https://min-api.cryptocompare.com/data/pricemulti?tsyms=USD');
 
 const tickersHandlers = new Map();
 
-const url = new URL('https://min-api.cryptocompare.com/data/pricemulti?tsyms=USD');
-url.searchParams.set('api_key', API_KEY);
+export const getCoinPrice = async (coinName) => {
+  singlePriceURL.searchParams.set('fsym', coinName);
+
+  try {
+    const resolve = await fetch(singlePriceURL);
+    const price = await resolve.json();
+    return price.USD;
+    
+  } catch(error) {
+    console.log(error);
+  }
+
+}
 
 export const updateTickersPrice = tickers => {
   if (!tickers.length) return
 
-  url.searchParams.set('fsyms', tickers.join());
+  multiPriceURL.searchParams.set('fsyms', tickers.join());
 
-  fetch(url)
+  fetch(multiPriceURL)
     .then(resolve => resolve.json())
     .then(priceList => {
       tickersHandlers.forEach((fn, coinName) => {

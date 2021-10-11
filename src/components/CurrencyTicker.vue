@@ -24,8 +24,7 @@
     </p>
     <div class="ticker__button-container">
       <remove-button
-        class="ticker__button"
-        v-if="isRemovable"     
+        class="ticker__button"     
         @click.native="handleRemoveButtonClick"
       />
     </div>
@@ -40,12 +39,7 @@ export default {
     RemoveButton
   },
 
-  props: {
-    isRemovable: {
-      type: Boolean,
-      default: true
-    },
-    
+  props: {   
     positionInList: {
       type: Number
     },
@@ -79,7 +73,7 @@ export default {
 <style lang="scss" scoped>
 $ticker-height: 4em;
 $ticker-height-390: 3.5em;
-$mediaMinWidth: 390px;
+$mediaMinWidth: 402px;
 
 .ticker {
   height: $ticker-height;
@@ -88,6 +82,7 @@ $mediaMinWidth: 390px;
   border-radius: 5px;
   box-shadow: 0px 1px 2px 1px rgba(0, 0, 0, 0.12);
   background-color: #fff;
+  text-align: center;
   font-size: 16px;
 
   @media(max-width:$mediaMinWidth) {
@@ -110,7 +105,7 @@ $mediaMinWidth: 390px;
     cursor: pointer;
 
     @media(max-width:$mediaMinWidth) {
-      grid-template-columns: $ticker-height-390 4.5em;
+      grid-template-columns: $ticker-height-390 4.3em;
       grid-template-rows: $ticker-height-390;
     }
   }
@@ -167,7 +162,6 @@ $mediaMinWidth: 390px;
     border: solid 1px rgb(231, 231, 231);
     border-radius: 5px;
     background-color: rgb(248, 248, 248);
-    text-align: center;
   }
 
   &__button-container {
@@ -176,6 +170,7 @@ $mediaMinWidth: 390px;
     text-align: right;
 
     @media(max-width:$mediaMinWidth) {
+      width: 2.1em;
       align-self: center;
     }
   }   

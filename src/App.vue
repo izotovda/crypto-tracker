@@ -1,12 +1,10 @@
 <template>
   <div class="app">
-    <div v-if="!isCoinListLoaded" class="backdrop">
+    <div class="backdrop" v-if="!isCoinListLoaded">
       Loading...
     </div>
     <c-header/>
-    <div class="content">
-      <router-view v-if="isCoinListLoaded"/>
-    </div>
+    <router-view class="content" v-if="isCoinListLoaded"/>
   </div>
 </template>
 
@@ -35,7 +33,7 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
 * {
   margin: 0;
   padding: 0;
@@ -49,9 +47,9 @@ html, body {
 
 .app {
   min-height: 100%;
+  min-width: 320px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
   color: #2c3e50;
   background: rgb(245, 245, 245);
 }
@@ -64,26 +62,13 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 80%;
-  background: rgb(15, 124, 12);
+  opacity: 60%;
+  background: rgba(77, 177, 76);
   color:honeydew;
 }
 
-.main-body {
+.content {
   margin: 0 auto;
-  max-width: 920px;
-}
-
-#nav {
-  padding: 30px;
-}
-
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-#nav a.router-link-exact-active {
-  color: #42b983;
+  max-width: 800px;
 }
 </style>

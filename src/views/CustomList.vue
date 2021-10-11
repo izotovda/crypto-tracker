@@ -1,7 +1,7 @@
 <template>
-  <div>
-    <h1>Custom coin list</h1>
-    <p>Enter coin name below to start tracking it. You can see additional information by clicking on coin name or logo.</p>
+  <div class="custom-list">
+    <h1 class="custom-list__caption">Custom coin list</h1>
+    <p class="custom-list__user-guide">Enter coin name below to start tracking it. You can see additional information such as coin description or historical data by clicking on coin name or logo.</p>
     <div class="search">
       <autocomplete-search
         class="search__autocomplete"
@@ -16,7 +16,7 @@
         <span v-if="isTickerAlreadyAdded">Token is already added</span>
       </div>
     </div>
-    <ul class="tickers-list">    
+    <ul class="tickers-list">
       <li
         class="tickers-list__item"
         v-for="(ticker, index) in CustomTickerList"
@@ -29,7 +29,7 @@
           @info-request="openCoinPage($event, ticker.name)"
         />
       </li>
-    </ul>  
+    </ul>
   </div>
 </template>
 
@@ -162,6 +162,20 @@ export default {
 </script> 
 
 <style lang="scss" scoped>
+@import "../styles/default.scss";
+
+.custom-list {
+  @extend %default-container;
+
+  &__caption {
+    @extend %default-caption;
+  }
+
+  &__user-guide {
+    @extend %default-paragraph;
+  }
+}
+
 .search {
   height: 64px;
   width: 240px;
@@ -173,16 +187,17 @@ export default {
 
   &__errors-container {
     line-height: 2em;
+    text-align: center;
     color: rgb(235, 28, 28);
   }
 }
 
 .tickers-list {
-  margin: 1.25em auto;
+  margin: 1em auto;
   width: min-content;
   list-style: none;
 
-  &__item:not(:last-child) {
+  &__item {
     margin-bottom: 5px;  
   }
 }
