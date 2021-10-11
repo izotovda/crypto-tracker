@@ -61,12 +61,8 @@ export default {
   },
 
   created() {
-    // load tickers from local storage
-    const tickers = localStorage.getItem('tickers');
-    
-    if (tickers) {  
-      CustomTickerList.set(JSON.parse(tickers));
-
+    // pass functions for each coin in list to execute on "updateTickersPrice" call   
+    if (this.CustomTickerList.length) {  
       this.CustomTickerList.forEach(t => {
         t.price = "-";
         subscribeTicker(t.name, (newPrice) => CustomTickerList.setPrice(t, newPrice));
@@ -87,10 +83,6 @@ export default {
   },
 
   watch: {
-    CustomTickerList() {
-      localStorage.setItem('tickers', JSON.stringify(this.CustomTickerList));
-    },
-
     tickerToAdd() {     
       // form suggestion list if input value is not empty nor contains only spaces
       if (!this.tickerToAdd.trim().length || /\\/.test(this.tickerToAdd)) { 

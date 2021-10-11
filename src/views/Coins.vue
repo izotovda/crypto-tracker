@@ -5,7 +5,7 @@
       <div class="coin-card">
         <img class="coin-card__logo" :src="coinData.imageUrl" alt="Coin logo">
         <div class="coin-card__price">{{ formatedPrice }}</div>
-        <button class="coin-card__button">Start tracking</button>
+        <button class="coin-card__button" @click="addTickerToCustomList">Start tracking</button>
       </div>
       <div class="main-content">
         <div class="main-content__buttons-container">
@@ -45,6 +45,7 @@
 
 <script>
 import LineChart from "../components/LineChart.vue";
+import { CustomTickerList } from "../store/services/CustomTickerList.js";
 import { CoinList } from "../store/services/CoinList.js";
 import { getCoinPrice, getHourlyPairData } from "../api.js";
 
@@ -152,6 +153,14 @@ export default {
 
     async updatePrice() {
       this.price = await getCoinPrice(this.coinData.name);
+    },
+
+    addTickerToCustomList() {
+      for (const ticker of CustomTickerList.get()) {
+        if (ticker.name === this.coinData.name) return;
+        }
+
+      CustomTickerList.add(this.coinData);
     }
   },  
 }
