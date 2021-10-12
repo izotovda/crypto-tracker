@@ -60,11 +60,11 @@ export default {
 
   methods: {
     handleRemoveButtonClick() {
-      this.$emit('remove-request');
+      this.$emit("remove-request");
     },
 
     handleCoinClick(event) {
-      this.$emit('info-request', event);
+      this.$emit("info-request", event);
     }
   }
 }

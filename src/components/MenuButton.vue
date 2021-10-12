@@ -19,7 +19,7 @@ export default{
 
   methods: {
     toggle() {
-      this.$emit('toggle');
+      this.$emit("toggle");
     }
   }
 }

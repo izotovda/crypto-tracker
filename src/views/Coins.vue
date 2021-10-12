@@ -45,8 +45,8 @@
 
 <script>
 import LineChart from "../components/LineChart.vue";
-import { CustomTickerList } from "../store/services/CustomTickerList.js";
-import { CoinList } from "../store/services/CoinList.js";
+import { CustomTickersService } from "../store/services/CustomTickersService.js";
+import { CoinService } from "../store/services/CoinService.js";
 import { getCoinPrice, getHourlyPairData } from "../api.js";
 
 export default {
@@ -72,7 +72,7 @@ export default {
 
   computed: {
     coinData() {
-      return CoinList.getCoinData(this.coin.toUpperCase()) || {};
+      return CoinService.getCoinData(this.coin.toUpperCase()) || {};
     },
 
     formatedPrice() {
@@ -124,7 +124,7 @@ export default {
 
   beforeRouteUpdate(to, from, next) {
     // check if coin exists, push to 404 if not
-    const nextCoinData = CoinList.getCoinData(to.params.coin.toUpperCase());
+    const nextCoinData = CoinService.getCoinData(to.params.coin.toUpperCase());
     if (nextCoinData) {
       next();
 
@@ -156,11 +156,11 @@ export default {
     },
 
     addTickerToCustomList() {
-      for (const ticker of CustomTickerList.get()) {
+      for (const ticker of CustomTickersService.getList()) {
         if (ticker.name === this.coinData.name) return;
         }
 
-      CustomTickerList.add(this.coinData);
+      CustomTickersService.add(this.coinData);
     }
   },  
 }

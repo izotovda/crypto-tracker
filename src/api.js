@@ -1,13 +1,13 @@
-const singlePriceURL = new URL('https://min-api.cryptocompare.com/data/price?tsyms=USD');
-const multiPriceURL = new URL('https://min-api.cryptocompare.com/data/pricemulti?tsyms=USD');
+const SINGLE_PRICE_URL = new URL("https://min-api.cryptocompare.com/data/price?tsyms=USD");
+const MULTI_PRICE_URL = new URL("https://min-api.cryptocompare.com/data/pricemulti?tsyms=USD");
 
 const tickersHandlers = new Map();
 
 export const getCoinPrice = async (coinName) => {
-  singlePriceURL.searchParams.set('fsym', coinName);
+  SINGLE_PRICE_URL.searchParams.set("fsym", coinName);
 
   try {
-    const resolve = await fetch(singlePriceURL);
+    const resolve = await fetch(SINGLE_PRICE_URL);
     const price = await resolve.json();
     return price.USD;
     
@@ -20,9 +20,9 @@ export const getCoinPrice = async (coinName) => {
 export const updateTickersPrice = tickers => {
   if (!tickers.length) return
 
-  multiPriceURL.searchParams.set('fsyms', tickers.join());
+  MULTI_PRICE_URL.searchParams.set("fsyms", tickers.join());
 
-  fetch(multiPriceURL)
+  fetch(MULTI_PRICE_URL)
     .then(resolve => resolve.json())
     .then(priceList => {
       tickersHandlers.forEach((fn, coinName) => {
@@ -41,7 +41,7 @@ export const unsubscribeTicker = (ticker) => {
 };
 
 export const getCoinList = () => {
-  return fetch('https://min-api.cryptocompare.com/data/all/coinlist')
+  return fetch("https://min-api.cryptocompare.com/data/all/coinlist")
     .then(resolve => resolve.json())
     .then(coinList => {
       for (let coin in coinList.Data) {
@@ -57,8 +57,8 @@ export const getCoinList = () => {
 
 export const getHourlyPairData = async (coinName) => {
   try {
-    const url = new URL('https://min-api.cryptocompare.com/data/v2/histohour?tsym=USD&limit=24');
-    url.searchParams.set('fsym', coinName);
+    const url = new URL("https://min-api.cryptocompare.com/data/v2/histohour?tsym=USD&limit=24");
+    url.searchParams.set("fsym", coinName);
     
     const resolve = await fetch(url);
     const rowData = await resolve.json();

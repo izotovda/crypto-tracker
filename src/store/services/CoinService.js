@@ -1,12 +1,12 @@
 import store from "../index.js";
 
-class CoinList {
+class CoinService {
 
-  static set(list) {
-    store.dispatch('fillCoinList', list);
+  static setCoinList(list) {
+    store.dispatch("fillCoinList", list);
   }
 
-  static get() {
+  static getFullList() {
     return store.state.coinList;
   }
 
@@ -47,4 +47,4 @@ class CoinList {
   }
 }
 
-export { CoinList };
+export { CoinService };

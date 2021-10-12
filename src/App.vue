@@ -10,8 +10,8 @@
 
 <script>
 import CHeader from "./components/CHeader.vue";
-import { CustomTickerList } from "./store/services/CustomTickerList.js";
-import { CoinList } from "./store/services/CoinList.js";
+import { CustomTickersService } from "./store/services/CustomTickersService.js";
+import { CoinService } from "./store/services/CoinService.js";
 import { getCoinList } from "./api.js";
 
 export default {
@@ -27,31 +27,48 @@ export default {
   
   computed: {
     CustomTickerList() {
-      return CustomTickerList.get();
+      return CustomTickersService.getList();
     }
   },
 
   watch: {
     // update local storage on CustomTickerList (store) change
     CustomTickerList() {
-      localStorage.setItem('tickers', JSON.stringify(this.CustomTickerList));
+      localStorage.setItem("tickers", JSON.stringify(this.CustomTickerList));
     }
   },
 
   created() {
-    // load list of all available coins and save it in store
-    getCoinList().then(loadedList => {
-      CoinList.set(loadedList);
-      this.isCoinListLoaded = true;
-    });
-
     // push tickers from local storage to CustomTickerList (store)
-    const tickers = localStorage.getItem('tickers');
+    const tickers = localStorage.getItem("tickers");
     
     if (tickers) {  
-      CustomTickerList.set(JSON.parse(tickers));
+      CustomTickersService.setList(JSON.parse(tickers));
     }
+
+    // load list of all available coins and save it in store
+    this.loadCoinList();
   },
+
+  methods: {
+    async loadCoinList() {
+      const list = await getCoinList();
+      CoinService.setCoinList(list);
+      this.isCoinListLoaded = true;
+
+      // fill custiom ticker list with default tickers if empty
+      if (!this.CustomTickerList.length) this.addDefaultTickers();
+    },
+
+    addDefaultTickers() {
+      const defaultTickers = [ "BTC", "ETH", "DOGE" ];
+
+      defaultTickers.forEach(coinName => {
+        const coinData = CoinService.getCoinData(coinName);
+        CustomTickersService.add(coinData);
+      })
+    }
+  }
 }
 </script>
 

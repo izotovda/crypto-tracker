@@ -105,7 +105,7 @@ export default {
       this.$nextTick(() => {
         if (this.selectedSuggestion !== null) {
           const suggestionsList = this.$refs.suggestionsList;
-          const selectedItem = suggestionsList.querySelector('.autocomplete__suggestion_selected');
+          const selectedItem = suggestionsList.querySelector(".autocomplete__suggestion_selected");
 
           const itemCoords = selectedItem.getBoundingClientRect();
           const listCoords = suggestionsList.getBoundingClientRect();
@@ -131,7 +131,7 @@ export default {
       this.resetInputValue();
       this.resetSuggestionList();
 
-      this.$emit('submit', valueToPass);
+      this.$emit("submit", valueToPass);
     },
 
     resetInputValue() {

@@ -1,5 +1,5 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
+import Vue from "vue"
+import Vuex from "vuex"
 
 Vue.use(Vuex);
 
@@ -34,23 +34,23 @@ const store = new Vuex.Store({
 
     actions: {
       setCustomList({ commit }, newList) {
-      commit('SET_TICKER_LIST', newList);
+      commit("SET_TICKER_LIST", newList);
     },
 
     addTickerToCustomList({ commit }, ticker) {
-      commit('ADD_TICKER', ticker);
+      commit("ADD_TICKER", ticker);
     },
 
     removeTickerFromCustomList({ commit }, ticker) {
-      commit('REMOVE_TICKER', ticker);
+      commit("REMOVE_TICKER", ticker);
     },
 
     setTickerPrice({ commit }, {ticker, newPrice}) {
-      commit('SET_TICKER_PRICE', {ticker, newPrice});
+      commit("SET_TICKER_PRICE", {ticker, newPrice});
     },
 
     fillCoinList({ commit }, list) {
-      commit('FILL_COIN_LIST', list);
+      commit("FILL_COIN_LIST", list);
     },
   }
 });

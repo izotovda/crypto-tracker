@@ -36,8 +36,8 @@
 import { subscribeTicker, unsubscribeTicker, updateTickersPrice } from "../api.js";
 import AutocompleteSearch from "../components/AutocompleteSearch.vue";
 import CurrencyTicker from "../components/CurrencyTicker.vue";
-import { CustomTickerList } from "../store/services/CustomTickerList.js";
-import { CoinList } from "../store/services/CoinList.js";
+import { CustomTickersService } from "../store/services/CustomTickersService.js";
+import { CoinService } from "../store/services/CoinService.js";
 
 export default {
   components: {
@@ -56,7 +56,7 @@ export default {
 
   computed: {
     CustomTickerList() {
-      return CustomTickerList.get();
+      return CustomTickersService.getList();
     }
   },
 
@@ -65,7 +65,7 @@ export default {
     if (this.CustomTickerList.length) {  
       this.CustomTickerList.forEach(t => {
         t.price = "-";
-        subscribeTicker(t.name, (newPrice) => CustomTickerList.setPrice(t, newPrice));
+        subscribeTicker(t.name, (newPrice) => CustomTickersService.setPrice(t, newPrice));
       })
     }
 
@@ -73,7 +73,7 @@ export default {
     const tickerUpdateInterval = 2000;
 
     this.$options.intervalId = setInterval(
-      () => updateTickersPrice(CustomTickerList.get().map((t) => t.name)),
+      () => updateTickersPrice(CustomTickersService.getList().map((t) => t.name)),
       tickerUpdateInterval
     );
   },
@@ -88,7 +88,7 @@ export default {
       if (!this.tickerToAdd.trim().length || /\\/.test(this.tickerToAdd)) { 
         return;
       }
-      this.suggestions = CoinList.findAllMatches(this.tickerToAdd);
+      this.suggestions = CoinService.findAllMatches(this.tickerToAdd);
     },
   },
 
@@ -99,7 +99,7 @@ export default {
     },
 
     addTicker(tickerName) {
-      const ticker = CoinList.getCoinData(tickerName);
+      const ticker = CoinService.getCoinData(tickerName);
 
       // check if coin with that name exists
       if (!ticker) {
@@ -111,12 +111,12 @@ export default {
       this.checkIfAlreadyAdded(ticker.name);
       if (this.isTickerAlreadyAdded) return;
 
-      CustomTickerList.add(ticker);
-      subscribeTicker(ticker.name, (newPrice) => CustomTickerList.setPrice(ticker, newPrice));
+      CustomTickersService.add(ticker);
+      subscribeTicker(ticker.name, (newPrice) => CustomTickersService.setPrice(ticker, newPrice));
     },
 
     removeTicker(ticker) {
-      CustomTickerList.remove(ticker);
+      CustomTickersService.remove(ticker);
       unsubscribeTicker(ticker.name);
     },
 
@@ -135,7 +135,7 @@ export default {
     },
 
     openCoinPage(event, coinName) {
-      const routerProperties = {name: 'Coins', params: {coin: coinName}};
+      const routerProperties = {name: "Coins", params: {coin: coinName}};
 
       // handle left click
       if (event.which === 1) {

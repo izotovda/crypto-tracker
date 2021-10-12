@@ -40,9 +40,9 @@
 
 <script>
 import AutocompleteSearch from "./AutocompleteSearch.vue";
-import MenuButton from './MenuButton.vue';
-import { debounce } from '../common-methods/debounce.js';
-import { CoinList } from '../store/services/CoinList.js';
+import MenuButton from "./MenuButton.vue";
+import { debounce } from "../common-methods/debounce.js";
+import { CoinService } from "../store/services/CoinService.js";
 
 export default {
   // custom options
@@ -67,7 +67,7 @@ export default {
       if (!this.searchInputValue.trim().length || /\\/.test(this.searchInputValue)) { 
         return;
       }
-      this.suggestions = CoinList.findAllMatches(this.searchInputValue);
+      this.suggestions = CoinService.findAllMatches(this.searchInputValue);
     },
 
     currentWindowWidth() {
@@ -101,7 +101,7 @@ export default {
     },
 
     async openCoinPage(coinName) {
-      const routerProperties = {name: 'Coins', params: {coin: coinName}};
+      const routerProperties = {name: "Coins", params: {coin: coinName}};
       this.$router.push(routerProperties, () => {});
       this.closeMenu();
     },
@@ -115,7 +115,7 @@ export default {
     },
 
     openNewDeafaultTab() {
-      const routerProperties = {name: 'Default'};
+      const routerProperties = {name: "Default"};
       const newRoute = this.$router.resolve(routerProperties);
       window.open(newRoute.href);
     }

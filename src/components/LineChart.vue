@@ -55,7 +55,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-//added to fix the problem: when resizing the page/grid up the chart grows fine but when resizing back down will break
+// added to fix the problem: when resizing the page/grid up the chart grows fine but when resizing back down will break
 canvas {
   width: 100% !important;
 }
